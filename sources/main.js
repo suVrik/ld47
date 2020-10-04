@@ -26,6 +26,7 @@ function update_normal() {
     const elapsed_time = Math.min(Date.now() - previous_time, 100);
     previous_time = now;
 
+    state.time += elapsed_time;
     state.game.update_normal(elapsed_time / 1000);
     state.input.update_normal();
 

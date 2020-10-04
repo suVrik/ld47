@@ -13,6 +13,7 @@ export default {
         height: config.window.height,
         scale: 1,
     },
+    time: 0,
     input: null,
     game: null,
     player: null,

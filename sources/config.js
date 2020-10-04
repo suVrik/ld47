@@ -114,4 +114,9 @@ export default {
         width: 16,
         height: 16,
     },
+    drone: {
+        width: 16,
+        height: 16,
+        speed: 70,
+    },
 };
