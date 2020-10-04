@@ -48,6 +48,35 @@ export default class Physics {
         }
     }
 
+    point_all(x, y, mask, callback) {
+        for (const chunk of this.chunks) {
+            if (Utils.point(chunk.bounding_box.x, chunk.bounding_box.y, chunk.bounding_box.width, chunk.bounding_box.height, x, y)) {
+                for (const shape of chunk.shapes) {
+                    if ((shape.mask & mask) !== 0) {
+                        if (Utils.point(shape.x, shape.y, shape.width, shape.height, x, y)) {
+                            callback(shape);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    point_any(x, y, mask) {
+        for (const chunk of this.chunks) {
+            if (Utils.point(chunk.bounding_box.x, chunk.bounding_box.y, chunk.bounding_box.width, chunk.bounding_box.height, x, y)) {
+                for (const shape of chunk.shapes) {
+                    if ((shape.mask & mask) !== 0) {
+                        if (Utils.point(shape.x, shape.y, shape.width, shape.height, x, y)) {
+                            return shape;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     overlap_all(x, y, width, height, mask, callback) {
         for (const chunk of this.chunks) {
             if (Utils.aabb(x, y, width, height, chunk.bounding_box.x, chunk.bounding_box.y, chunk.bounding_box.width, chunk.bounding_box.height)) {

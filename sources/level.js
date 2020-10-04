@@ -5,32 +5,33 @@ import config from "./config";
 import * as PIXI from "pixi.js";
 import Player from "./player";
 import resources from "./resources";
+import Spike from "./spike";
 import state from "./state";
 import TriggerZone from "./trigger_zone";
 import Utils from "./utils";
 
 export default class Level {
     // `chunk` is specified in level space.
-    constructor(prototype, x, y, chunk_x, chunk_y, chunk_width, chunk_height) {
+    constructor(prototype, x, y, chunk) {
         this.x = x;
         this.y = y;
         this.shapes = [];
         this.bounding_box = {
-            min_x: x + chunk_x,
-            min_y: y + chunk_y,
-            max_x: x + chunk_x + chunk_width,
-            max_y: y + chunk_y + chunk_height,
+            min_x: x + chunk.x,
+            min_y: y + chunk.y,
+            max_x: x + chunk.x + chunk.width,
+            max_y: y + chunk.y + chunk.height,
         };
 
         this.auto_layer = new PIXI.Container();
         this.background_tiles_layer = new PIXI.Container();
         this.foreground_tiles_layer = new PIXI.Container();
 
-        this.load_grid(prototype.layers["Grid"], chunk_x, chunk_y, chunk_width, chunk_height);
-        this.load_auto_layer(prototype.layers["AutoLayer"], chunk_x, chunk_y, chunk_width, chunk_height);
-        this.load_tile_layer(prototype.layers["BackgroundTiles"], this.background_tiles_layer, chunk_x, chunk_y, chunk_width, chunk_height);
-        this.load_entities(prototype.layers["Entities"], chunk_x, chunk_y, chunk_width, chunk_height);
-        this.load_tile_layer(prototype.layers["ForegroundTiles"], this.foreground_tiles_layer, chunk_x, chunk_y, chunk_width, chunk_height);
+        this.load_grid(prototype.layers["Grid"], chunk);
+        this.load_auto_layer(prototype.layers["AutoLayer"], chunk);
+        this.load_tile_layer(prototype.layers["BackgroundTiles"], this.background_tiles_layer, chunk);
+        this.load_entities(prototype.layers["Entities"], chunk);
+        this.load_tile_layer(prototype.layers["ForegroundTiles"], this.foreground_tiles_layer, chunk);
 
         this.auto_layer.x = x;
         this.auto_layer.y = y;
@@ -50,28 +51,36 @@ export default class Level {
         // TODO: Perhaps perform culling?
     }
 
-    load_grid(layer_prototype, chunk_x, chunk_y, chunk_width, chunk_height) {
+    load_grid(layer_prototype, chunk) {
         for (const rectangle of layer_prototype) {
-            const shape = {
-                x: this.x + rectangle.x * config.tile_size,
-                y: this.y + rectangle.y * config.tile_size,
-                width: rectangle.width * config.tile_size,
-                height: rectangle.height * config.tile_size,
-                mask: config.collision_types.environment,
-            };
-
-            if (Utils.aabb(shape.x, shape.y, shape.width, shape.height,
-                           this.x + chunk_x, this.y + chunk_y, chunk_width, chunk_height)) {
-                this.shapes.push(shape);
+            switch (rectangle.value) {
+                case config.grid.ground:
+                    this.add_physics(rectangle, config.collision_types.environment, chunk);
+                    break;
+                case config.grid.spikes:
+                    this.for_each_tile(rectangle, chunk, (x, y) => {
+                        state.game.add_entity(new Spike(x, y, rectangle.width, rectangle.height));
+                    });
+                    break;
+                case config.grid.platform:
+                    this.add_physics(rectangle, config.collision_types.platform, chunk);
+                    break;
+                case config.grid.breaking_tiles:
+                    this.for_each_tile(rectangle, chunk, (x, y) => {
+                        state.game.add_entity(new BreakingTile(x, y, this.shapes));
+                    });
+                    break;
+                default:
+                    console.warn(`Unknown grid type ${rectangle.value}`)
             }
         }
     }
 
-    load_auto_layer(layer_prototype, chunk_x, chunk_y, chunk_width, chunk_height) {
-        const x_min = chunk_x / config.tile_size;
-        const y_min = chunk_y / config.tile_size;
-        const x_max = x_min + chunk_width / config.tile_size;
-        const y_max = y_min + chunk_height / config.tile_size;
+    load_auto_layer(layer_prototype, chunk) {
+        const x_min = chunk.x / config.tile_size;
+        const y_min = chunk.y / config.tile_size;
+        const x_max = x_min + chunk.width / config.tile_size;
+        const y_max = y_min + chunk.height / config.tile_size;
         for (let y = y_min; y < y_max; y++) {
             for (let x = x_min; x < x_max; x++) {
                 const tile_index = layer_prototype[y][x];
@@ -85,14 +94,14 @@ export default class Level {
         }
     }
 
-    load_tile_layer(layer_prototype, layer, chunk_x, chunk_y, chunk_width, chunk_height) {
+    load_tile_layer(layer_prototype, layer, chunk) {
         for (let y in layer_prototype) {
             if (layer_prototype.hasOwnProperty(y)) {
                 for (let x in layer_prototype[y]) {
                     if (layer_prototype[y].hasOwnProperty(x)) {
                         const local_x = x * config.tile_size;
                         const local_y = y * config.tile_size;
-                        if (local_x >= chunk_x && local_y >= chunk_y && local_x < chunk_x + chunk_width && local_y < chunk_y + chunk_height) {
+                        if (local_x >= chunk.x && local_y >= chunk.y && local_x < chunk.x + chunk.width && local_y < chunk.y + chunk.height) {
                             const tile_index = layer_prototype[y][x];
                             if (tile_index >= 0) {
                                 const sprite = new PIXI.Sprite(resources.tiles[tile_index]);
@@ -107,33 +116,11 @@ export default class Level {
         }
     }
 
-    load_entities(layer_prototype, chunk_x, chunk_y, chunk_width, chunk_height) {
+    load_entities(layer_prototype, chunk) {
         for (const entity_prototype of layer_prototype) {
-            if (entity_prototype.x >= chunk_x && entity_prototype.y >= chunk_y &&
-                entity_prototype.x < chunk_x + chunk_width && entity_prototype.y < chunk_y + chunk_height) {
+            if (entity_prototype.x >= chunk.x && entity_prototype.y >= chunk.y &&
+                entity_prototype.x < chunk.x + chunk.width && entity_prototype.y < chunk.y + chunk.height) {
                 switch (entity_prototype.name) {
-                    case "Platform":
-                        this.shapes.push({
-                            x: this.x + entity_prototype.x,
-                            y: this.y + entity_prototype.y,
-                            width: entity_prototype.fields["Width"] * config.tile_size,
-                            height: config.tile_size,
-                            mask: config.collision_types.platform,
-                        });
-                        break;
-                    case "BreakingTiles":
-                        const width = entity_prototype.fields["Width"];
-                        const height = entity_prototype.fields["Height"];
-                        for (let y = 0; y < height; y++) {
-                            for (let x = 0; x < width; x++) {
-                                state.game.add_entity(new BreakingTile(
-                                    this.x + entity_prototype.x + x * config.tile_size,
-                                    this.y + entity_prototype.y + y * config.tile_size,
-                                    this.shapes
-                                ));
-                            }
-                        }
-                        break;
                     case "Player":
                         state.game.add_entity(new Player(entity_prototype.x, entity_prototype.y));
                         break;
@@ -190,5 +177,32 @@ export default class Level {
         this.foreground_tiles_layer.parent.removeChild(this.foreground_tiles_layer);
 
         // Entities are managed by Game.
+    }
+
+    add_physics(rectangle, mask, chunk) {
+        const shape = {
+            x: this.x + rectangle.x * config.tile_size,
+            y: this.y + rectangle.y * config.tile_size,
+            width: rectangle.width * config.tile_size,
+            height: rectangle.height * config.tile_size,
+            mask: mask,
+        };
+
+        if (Utils.aabb(shape.x, shape.y, shape.width, shape.height,
+                       this.x + chunk.x, this.y + chunk.y, chunk.width, chunk.height)) {
+            this.shapes.push(shape);
+        }
+    }
+
+    for_each_tile(rectangle, chunk, callback) {
+        for (let y = 0; y < rectangle.height; y++) {
+            for (let x = 0; x < rectangle.width; x++) {
+                const local_x = (rectangle.x + x) * config.tile_size;
+                const local_y = (rectangle.y + y) * config.tile_size;
+                if (local_x >= chunk.x && local_y >= chunk.y && local_x < chunk.x + chunk.width && local_y < chunk.y + chunk.height) {
+                    callback(this.x + local_x, this.y + local_y);
+                }
+            }
+        }
     }
 }

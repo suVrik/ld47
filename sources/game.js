@@ -83,10 +83,14 @@ export default class Game extends PIXI.Container {
             if (resources.levels.hasOwnProperty(level_name)) {
                 console.log(`Loading level ${level_name}...`);
 
-                this.loaded_levels[level_name] = new Level(
-                    resources.levels[level_name], x, y,
-                    0, 0, resources.levels[level_name].width * config.tile_size, resources.levels[level_name].height * config.tile_size
-                );
+                const chunk = {
+                    x: 0,
+                    y: 0,
+                    width: resources.levels[level_name].width * config.tile_size,
+                    height: resources.levels[level_name].height * config.tile_size,
+                }
+
+                this.loaded_levels[level_name] = new Level(resources.levels[level_name], x, y, chunk);
 
                 this.recompute_bounding_box();
             } else {
@@ -101,12 +105,7 @@ export default class Game extends PIXI.Container {
             if (resources.levels.hasOwnProperty(level_name) && config.chunks.hasOwnProperty(chunk_name)) {
                 console.log(`Loading level chunk ${level_name}-${chunk_name}...`);
 
-                const chunk = config.chunks[chunk_name];
-
-                this.loaded_levels[complete_name] = new Level(
-                    resources.levels[level_name], this.level_origin.x, this.level_origin.y,
-                    chunk.x * config.tile_size, chunk.y * config.tile_size, chunk.width * config.tile_size, chunk.height * config.tile_size
-                );
+                this.loaded_levels[complete_name] = new Level(resources.levels[level_name], this.level_origin.x, this.level_origin.y, config.chunks[chunk_name]);
 
                 this.recompute_bounding_box();
             } else {
