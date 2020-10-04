@@ -110,4 +110,8 @@ export default {
         height: 16,
         speed: 10, // px/sec
     },
+    hazard: {
+        width: 16,
+        height: 16,
+    },
 };
