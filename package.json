@@ -1,0 +1,24 @@
+{
+  "name": "ld47",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "build": "webpack"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "copy-webpack-plugin": "^6.2.0",
+    "free-tex-packer-core": "^0.3.2",
+    "howler": "^2.2.0",
+    "html-webpack-plugin": "^4.5.0",
+    "pixi.js": "^5.3.3",
+    "source-map-loader": "^1.1.0"
+  },
+  "devDependencies": {
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12"
+  }
+}
