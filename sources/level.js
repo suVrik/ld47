@@ -9,6 +9,7 @@ import Spike from "./spike";
 import state from "./state";
 import TriggerZone from "./trigger_zone";
 import Utils from "./utils";
+import Zombie from "./zombie";
 
 export default class Level {
     // `chunk` is specified in level space.
@@ -122,7 +123,19 @@ export default class Level {
                 entity_prototype.x < chunk.x + chunk.width && entity_prototype.y < chunk.y + chunk.height) {
                 switch (entity_prototype.name) {
                     case "Player":
-                        state.game.add_entity(new Player(entity_prototype.x, entity_prototype.y));
+                        state.game.add_entity(new Player(entity_prototype.x, entity_prototype.y, this.shapes));
+                        break;
+                    case "Zombie":
+                        state.game.add_entity(new Zombie(
+                            this.x + entity_prototype.x,
+                            this.y + entity_prototype.y,
+                            this.shapes,
+                            entity_prototype.fields["Destination"],
+                            entity_prototype.fields["InitialPosition"],
+                            entity_prototype.fields["IdleDuration"],
+                            entity_prototype.fields["FaceRight"],
+                            this.x
+                        ));
                         break;
                     case "TriggerZone":
                         state.game.add_entity(new TriggerZone(

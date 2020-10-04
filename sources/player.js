@@ -6,7 +6,7 @@ import state from "./state";
 import MovieClip from "./movie_clip";
 
 export default class Player extends MovieClip {
-    constructor(x, y) {
+    constructor(x, y, shapes) {
         super({
             idle: { frames: resources.sprites["characters_player_idle"], speed: 0.15 },
             run: { frames: resources.sprites["characters_player_run"], speed: 0.2 },
@@ -19,11 +19,12 @@ export default class Player extends MovieClip {
         this.anchor.set(0.5, 1.0);
         this.x = x;
         this.y = y;
-        this.bounding_box = {
+        this.shape = {
             x: this.x - config.player.width / 2,
             y: this.y - config.player.height,
             width: config.player.width,
             height: config.player.height,
+            mask: config.collision_types.player,
         };
         this.velocity_x = 0;
         this.velocity_y = 0;
@@ -35,6 +36,8 @@ export default class Player extends MovieClip {
         state.player = this;
 
         this.play();
+
+        shapes.push(this.shape);
     }
 
     update_normal(elapsed_time) {
@@ -116,11 +119,14 @@ export default class Player extends MovieClip {
             }
         }
 
-        const result = state.game.physics.move_x(this.bounding_box.x, this.bounding_box.y, this.bounding_box.width, this.bounding_box.height, config.collision_types.environment, this.velocity_x);
+        const result = state.game.physics.move_x(
+            this.shape.x, this.shape.y, this.shape.width, this.shape.height,
+            config.collision_types.environment | config.collision_types.enemies, this.velocity_x
+        );
 
         this.x += result.offset;
 
-        this.update_bounding_box();
+        this.update_shape();
 
         if ((result.left && this.velocity_x < -1e-8) || (result.right && this.velocity_x > 1e-8)) {
             this.velocity_x = 0;
@@ -142,12 +148,12 @@ export default class Player extends MovieClip {
             }
         }
 
-        let collision_mask = config.collision_types.environment;
+        let collision_mask = config.collision_types.environment | config.collision_types.enemies;
         if (!is_down_pressed) {
             collision_mask |= config.collision_types.platform;
         }
 
-        const result = state.game.physics.move_y(this.bounding_box.x, this.bounding_box.y, this.bounding_box.width, this.bounding_box.height, collision_mask, this.velocity_y * elapsed_time, shape => {
+        const result = state.game.physics.move_y(this.shape.x, this.shape.y, this.shape.width, this.shape.height, collision_mask, this.velocity_y * elapsed_time, shape => {
             if ((shape.mask & config.collision_types.platform) !== 0) {
                 return shape.y > this.y - 1e-8;
             }
@@ -156,7 +162,7 @@ export default class Player extends MovieClip {
 
         this.y += result.offset;
 
-        this.update_bounding_box();
+        this.update_shape();
 
         if (result.bottom) {
             this.is_grounded = true;
@@ -177,17 +183,17 @@ export default class Player extends MovieClip {
         } else if (this.velocity_x < -1e-8) {
             this.scale.x = -1;
         }
+
         if (this.attack_timeout > 1e-8) {
             this.gotoAndPlay(`attack_${this.attack_animation}`);
-        } else
-        if (!this.is_grounded) {
-            if (this.velocity_y < 0) {
-                this.gotoAndPlay("jump_up");
-            } else {
-                this.gotoAndPlay("jump_down");
-            }
         } else {
-             {
+            if (!this.is_grounded) {
+                if (this.velocity_y < 0) {
+                    this.gotoAndPlay("jump_up");
+                } else {
+                    this.gotoAndPlay("jump_down");
+                }
+            } else {
                 if (Math.abs(this.velocity_x) > 1e-8) {
                     this.gotoAndPlay("run");
                 } else {
@@ -197,8 +203,8 @@ export default class Player extends MovieClip {
         }
     }
 
-    update_bounding_box() {
-        this.bounding_box.x = this.x - config.player.width / 2;
-        this.bounding_box.y = this.y - config.player.height;
+    update_shape() {
+        this.shape.x = this.x - config.player.width / 2;
+        this.shape.y = this.y - config.player.height;
     }
 }

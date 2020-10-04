@@ -14,7 +14,7 @@ export default class TriggerZone {
 
     update_normal(elapsed_time) {
         if (this.triggers_left > 0) {
-            if (Utils.aabb(state.player.bounding_box.x, state.player.bounding_box.y, state.player.bounding_box.width, state.player.bounding_box.height,
+            if (Utils.aabb(state.player.shape.x, state.player.shape.y, state.player.shape.width, state.player.shape.height,
                            this.x, this.y, this.width, this.height)) {
                 state.game.trigger_manager.emit(this.trigger);
                 this.triggers_left--;

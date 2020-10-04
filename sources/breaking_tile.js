@@ -26,11 +26,11 @@ export default class BreakingTile extends PIXI.Sprite {
     update_normal(elapsed_time) {
         if (this.hits < 3) {
             if (this.timeout <= 1e-8 && state.player.attack_timeout > 1e-8) {
-                if (Utils.aabb(state.player.bounding_box.x - config.player.attack_range,
-                               state.player.bounding_box.y - config.player.attack_range,
-                               state.player.bounding_box.width + config.player.attack_range * 2,
-                               state.player.bounding_box.height + config.player.attack_range * 2,
-                               this.x, this.y, config.tile_size, config.tile_size)) {
+                if (Utils.aabb(state.player.shape.x - config.player.attack_range,
+                               state.player.shape.y - config.player.attack_range,
+                               state.player.shape.width + config.player.attack_range * 2,
+                               state.player.shape.height + config.player.attack_range * 2,
+                               this.shape.x, this.shape.y, this.shape.width, this.shape.height)) {
                     this.hits++;
 
                     // Avoid the rest of this hit.

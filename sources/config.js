@@ -16,6 +16,8 @@ export default {
         none: 0x00000000,
         environment: 0x00000001,
         platform: 0x00000002,
+        player: 0x00000004,
+        enemies: 0x00000008,
     },
     chunks: {
         TopLeft: {
@@ -102,5 +104,10 @@ export default {
     },
     spikes: {
         appear_distance: 100,
+    },
+    zombie: {
+        width: 12,
+        height: 16,
+        speed: 10, // px/sec
     },
 };
