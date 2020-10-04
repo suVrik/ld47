@@ -154,6 +154,7 @@ export default class Level {
                         state.game.add_entity(new Drone(
                             this.x + entity_prototype.x,
                             this.y + entity_prototype.y,
+                            this.shapes,
                             entity_prototype.fields["Path"],
                             this.x,
                             this.y

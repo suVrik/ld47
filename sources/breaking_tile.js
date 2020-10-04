@@ -19,11 +19,24 @@ export default class BreakingTile extends PIXI.Sprite {
         };
         this.hits = 0;
         this.timeout = 0;
+        this.filters = [];
 
         shapes.push(this.shape);
     }
 
     update_normal(elapsed_time) {
+        // Show damage notification.
+        if (this.timeout > 1e-8) {
+            if (this.filters.length === 0) {
+                this.filters = [ resources.white_tint ];
+            }
+        } else {
+            if (this.filters.length === 1) {
+                this.filters = [ ];
+            }
+        }
+
+        // Logic.
         if (this.hits < 3) {
             if (this.timeout <= 1e-8 && state.player.attack_timeout > 1e-8) {
                 if (Utils.aabb(state.player.shape.x - config.player.attack_range,

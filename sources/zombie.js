@@ -20,12 +20,13 @@ export default class Zombie extends MovieClip {
         this.shape = {
             x: this.x - config.zombie.width / 2,
             y: this.y - config.zombie.height,
-            width: config.tile_size,
-            height: config.tile_size,
+            width: config.zombie.width,
+            height: config.zombie.height,
             mask: config.collision_types.enemies,
         };
         this.x = x + (this.destination_x - x) * initial;
         this.y = y;
+        this.anchor.set(0.5, 1.0);
         this.velocity_x = 0;
         this.velocity_y = config.zombie.pressure;
         this.filters = [];
@@ -33,9 +34,6 @@ export default class Zombie extends MovieClip {
 
         if (!face_right) {
             this.scale.x = -1;
-            this.anchor.set(0.6, 1.0);
-        } else {
-            this.anchor.set(0.4, 1.0);
         }
 
         shapes.push(this.shape);
@@ -63,7 +61,7 @@ export default class Zombie extends MovieClip {
                            state.player.shape.width + config.player.attack_range * 2,
                            state.player.shape.height + config.player.attack_range,
                            this.shape.x, this.shape.y, this.shape.width, this.shape.height)) {
-                this.damaged_timeout = Math.max(0.1, state.player.attack_timeout);
+                this.damaged_timeout = Math.max(config.zombie.damage_timeout, state.player.attack_timeout);
 
                 if (state.player.x < this.x) {
                     this.velocity_x = config.zombie.damage_velocity;
@@ -107,7 +105,6 @@ export default class Zombie extends MovieClip {
                 }
 
                 this.scale.x = 1;
-                this.anchor.set(0.4, 1.0);
             } else if (this.x > this.destination_x) {
                 const result = state.game.physics.move_x(
                     this.shape.x, this.shape.y, this.shape.width, this.shape.height,
@@ -121,7 +118,6 @@ export default class Zombie extends MovieClip {
                 }
 
                 this.scale.x = -1;
-                this.anchor.set(0.6, 1.0);
             }
 
             this.update_shape();

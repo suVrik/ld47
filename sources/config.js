@@ -116,13 +116,14 @@ export default {
         appear_distance: 100,
     },
     zombie: {
-        width: 10,
+        width: 12,
         height: 16,
         speed: 10, // px/sec
         gravity: 800, // px/sec^2
         pressure: 50, // px/sec
         damage_velocity: 100, // px/sec
-        velocity_falling: 0.85,
+        velocity_falling: 0.8,
+        damage_timeout: 0.1, // sec
     },
     hazard: {
         width: 16,
@@ -132,5 +133,9 @@ export default {
         width: 16,
         height: 16,
         speed: 70,
+        player_jump: 200, // px/sec
+        damage_timeout: 0.1, // sec
+        damage_velocity: 200, // px/sec
+        velocity_falling: 0.95,
     },
 };
