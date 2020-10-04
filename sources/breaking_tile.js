@@ -29,7 +29,7 @@ export default class BreakingTile extends PIXI.Sprite {
                 if (Utils.aabb(state.player.shape.x - config.player.attack_range,
                                state.player.shape.y - config.player.attack_range,
                                state.player.shape.width + config.player.attack_range * 2,
-                               state.player.shape.height + config.player.attack_range * 2,
+                               state.player.shape.height + config.player.attack_range,
                                this.shape.x, this.shape.y, this.shape.width, this.shape.height)) {
                     this.hits++;
 

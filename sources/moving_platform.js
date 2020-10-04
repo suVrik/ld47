@@ -5,7 +5,7 @@ import state from "./state";
 import Utils from "./utils";
 
 export default class MovingPlatform extends PIXI.AnimatedSprite {
-    constructor(x, y, shapes, path, speed, offset_x, offset_y) {
+    constructor(x, y, shapes, path, speed, wait_time, offset_x, offset_y) {
         super(resources.sprites["characters_platform_moving"]);
 
         this.path = [ { cx: Math.floor((x - offset_x) / config.tile_size), cy: Math.floor((y - offset_y) / config.tile_size) } ].concat(path || []);
@@ -18,6 +18,8 @@ export default class MovingPlatform extends PIXI.AnimatedSprite {
         this.animationSpeed = 0.1;
         this.anchor.set(0.5, 0);
         this.speed = speed;
+        this.wait_time = wait_time;
+        this.timeout = 0;
         this.shape = {
             x: this.x - config.tile_size,
             y: this.y,
@@ -34,9 +36,15 @@ export default class MovingPlatform extends PIXI.AnimatedSprite {
     }
 
     update_normal(elapsed_time) {
+        if (this.timeout > 1e-8) {
+            this.timeout -= elapsed_time;
+            return;
+        }
+
         const next = this.path[(this.current_index + 1) % this.path.length];
         if (Utils.equal(next.cx, this.x) && Utils.equal(next.cy, this.y)) {
             this.current_index = (this.current_index + 1) % this.path.length;
+            this.timeout = this.wait_time;
         } else {
             const distance = Utils.distance(this.x, this.y, next.cx, next.cy);
             const speed = Math.min(this.speed * elapsed_time, distance);

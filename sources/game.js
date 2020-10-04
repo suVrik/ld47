@@ -1,5 +1,6 @@
 "use strict";
 
+import {ColorOverlayFilter} from '@pixi/filter-color-overlay';
 import config from "./config";
 import Level from "./level";
 import * as PIXI from "pixi.js";
@@ -43,6 +44,8 @@ export default class Game extends PIXI.Container {
         this.addChild(this.layers);
 
         this.cache_tile_textures();
+
+        resources.white_tint = new ColorOverlayFilter(0xFFFFFF);
     }
 
     update_normal(elapsed_time) {

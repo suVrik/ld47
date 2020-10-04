@@ -116,9 +116,13 @@ export default {
         appear_distance: 100,
     },
     zombie: {
-        width: 12,
+        width: 10,
         height: 16,
         speed: 10, // px/sec
+        gravity: 800, // px/sec^2
+        pressure: 50, // px/sec
+        damage_velocity: 100, // px/sec
+        velocity_falling: 0.85,
     },
     hazard: {
         width: 16,

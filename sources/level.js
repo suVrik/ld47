@@ -166,6 +166,7 @@ export default class Level {
                             this.shapes,
                             entity_prototype.fields["Path"],
                             entity_prototype.fields["Speed"],
+                            entity_prototype.fields["WaitTime"],
                             this.x,
                             this.y
                         ));

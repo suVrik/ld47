@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@pixi/filter-color-overlay": "^3.1.1",
     "copy-webpack-plugin": "^6.2.0",
     "free-tex-packer-core": "^0.3.2",
     "howler": "^2.2.0",
