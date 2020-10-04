@@ -4,6 +4,7 @@ import BreakingTile from "./breaking_tile";
 import config from "./config";
 import Drone from "./drone";
 import Hazard from "./hazard";
+import MovingPlatform from "./moving_platform";
 import * as PIXI from "pixi.js";
 import Player from "./player";
 import resources from "./resources";
@@ -154,6 +155,17 @@ export default class Level {
                             this.x + entity_prototype.x,
                             this.y + entity_prototype.y,
                             entity_prototype.fields["Path"],
+                            this.x,
+                            this.y
+                        ));
+                        break;
+                    case "MovingPlatform":
+                        state.game.add_entity(new MovingPlatform(
+                            this.x + entity_prototype.x,
+                            this.y + entity_prototype.y,
+                            this.shapes,
+                            entity_prototype.fields["Path"],
+                            entity_prototype.fields["Speed"],
                             this.x,
                             this.y
                         ));
