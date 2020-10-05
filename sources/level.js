@@ -66,6 +66,7 @@ export default class Level {
                     this.for_each_tile(rectangle, chunk, (x, y, is_side) => {
                         state.game.add_entity(new Spike(x, y, rectangle.width, rectangle.height, is_side));
                     });
+                    this.add_physics(rectangle, config.collision_types.spikes, chunk);
                     break;
                 case config.grid.platform:
                     this.add_physics(rectangle, config.collision_types.platform, chunk);

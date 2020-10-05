@@ -250,10 +250,10 @@ export default class Player extends MovieClip {
                 }
 
                 if (this.death_by_falling) {
-                    this.shape.x = this.x - config.tile_size / 2;
-                    this.shape.y = this.y - config.tile_size;
-                    this.shape.width = config.tile_size;
-                    this.shape.height = config.tile_size;
+                    this.shape.x = this.x - config.player.height / 2;
+                    this.shape.y = this.y - config.player.width;
+                    this.shape.width = config.player.height;
+                    this.shape.height = config.player.width;
 
                     this.velocity_x *= config.player.death_by_falling_velocity_falling;
                     this.velocity_y += config.player.death_by_falling_gravity * elapsed_time;

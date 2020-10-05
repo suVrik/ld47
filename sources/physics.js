@@ -141,6 +141,31 @@ export default class Physics {
         return null;
     }
 
+    /** Returns array of 3 elements: x, y, square distance. Not an object! */
+    raycast_closest(x1, y1, x2, y2, mask) {
+        const x = Math.min(x1, x2);
+        const y = Math.min(y1, y2);
+        const width = Math.abs(x1 - x2);
+        const height = Math.abs(y1 - y2);
+
+        let result = null;
+
+        for (const chunk of this.chunks) {
+            if (Utils.aabb(x, y, width, height, chunk.bounding_box.x, chunk.bounding_box.y, chunk.bounding_box.width, chunk.bounding_box.height)) {
+                for (const shape of chunk.shapes) {
+                    if ((shape.mask & mask) !== 0) {
+                        const temp = Utils.segment_aabb_point(x1, y1, x2, y2, shape.x, shape.y, shape.width, shape.height);
+                        if (temp && (!result || temp[2] < result[2])) {
+                            result = temp;
+                        }
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
     move_x(x, y, width, height, mask, offset, filter) {
         const result = {
             left: false,

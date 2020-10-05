@@ -59,6 +59,7 @@ export default class Hazard extends PIXI.AnimatedSprite {
                 state.player.is_dead = true;
                 state.player.death_by_energy = true;
                 state.player.death_timeout = config.player.death_by_energy_timeout;
+                state.game.lock_camera = true;
             }
 
             if (state.game.hasOwnProperty("debug_draw_layer")) {

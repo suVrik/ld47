@@ -19,6 +19,7 @@ export default {
         platform: 0x00000002,
         player: 0x00000004,
         enemies: 0x00000008,
+        spikes: 0x00000010,
     },
     chunks: {
         TopLeft: {
@@ -126,7 +127,7 @@ export default {
     spikes: {
         appear_distance: 100,
         width: 2,
-        length: 22,
+        length: 20,
     },
     zombie: {
         width: 12,
@@ -157,6 +158,18 @@ export default {
         damage_timeout: 0.1, // sec
         damage_velocity: 200, // px/sec
         velocity_falling: 0.95,
+        activation_radius: 170, // px
+        activation_delay: 0.25, // sec
+        activation_timeout: 1.5, // sec
+        shooting_delay: 0.75, // sec
+        shooting_timeout: 3.15, // sec
+        shooting_ending: 0.15, // sec
+        not_seen_timeout: 0.75, // sec
+        laser_min_speed: 0.005,
+        laser_max_speed: 0.02,
+        shooting_radius: 400, // px
+        shooting_debuff: 1, // sec
+        health: 4,
     },
     disappearing_platform: {
         timeout_1: 0.4,

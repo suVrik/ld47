@@ -5,6 +5,10 @@ export default class Utils {
         return from + (to - from) * factor;
     }
 
+    static sign(value) {
+        return value < 0 ? -1 : 1;
+    }
+
     static clamp(value, min, max) {
         return Math.min(Math.max(value, min), max);
     }
@@ -63,6 +67,67 @@ export default class Utils {
                Utils.segment(x1, y1, x2, y2, rx + rw, ry, rx, ry + rh) ||
                Utils.point(rx, ry, rw, rh, x1, y1) ||
                Utils.point(rx, ry, rw, rh, x2, y2);
+    }
+
+    /** Returns array of 3 elements: x, y, square distance. Not an object! */
+    static segment_aabb_point(x1, y1, x2, y2, rx1, ry1, rw, rh) {
+        function get_intersection(dist_1, dist_2) {
+            if (dist_1 * dist_2 >= 0) {
+                return null;
+            }
+
+            if (Math.abs(dist_1 - dist_2) < 1e-8) {
+                return null;
+            }
+
+            const coeff = -dist_1 / (dist_2 - dist_1);
+            const x = x1 + (x2 - x1) * coeff;
+            const y = y1 + (y2 - y1) * coeff;
+            return [ x, y, Utils.square_distance(x1, y1, x, y) ];
+        }
+
+        const rx2 = rx1 + rw;
+        const ry2 = ry1 + rh;
+
+        function in_box_x(point) {
+            return point && point[0] > rx1 && point[0] < rx2 ? point : null;
+        }
+
+        function in_box_y(point) {
+            return point && point[1] > ry1 && point[1] < ry2 ? point : null;
+        }
+
+        function shorter(a, b) {
+            if (a && b) {
+                return a[2] < b[2] ? a : b;
+            }
+            return a || b;
+        }
+
+        if (x1 < rx1 && x2 < rx1) {
+            return false;
+        }
+
+        if (x1 > rx2 && x2 > rx2) {
+            return false;
+        }
+
+        if (y1 < ry1 && y2 < ry1) {
+            return false;
+        }
+
+        if (y1 > ry2 && y2 > ry2) {
+            return false;
+        }
+
+        if (x1 > rx1 && x1 < rx2 && y1 > ry1 && y1 < ry2) {
+            return [ x1, y1 ];
+        }
+
+        return shorter(shorter(shorter(in_box_y(get_intersection(x1 - rx1, x2 - rx2)),
+                                       in_box_x(get_intersection(y1 - ry1, y2 - ry1))),
+                               in_box_y(get_intersection(x1 - rx2, x2 - rx2))),
+                       in_box_x(get_intersection(y1 - ry2, y2 - ry2)));
     }
 
     static circle_rectangle(cx, cy, cr, rx, ry, rw, rh) {

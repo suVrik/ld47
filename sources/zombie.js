@@ -77,6 +77,14 @@ export default class Zombie extends MovieClip {
             }
         }
 
+        // Receive damage from drones.
+        for (const laser of state.game.lasers) {
+            if (Utils.segment_aabb(laser[0], laser[1], laser[2], laser[3], this.shape.x, this.shape.y, this.shape.width, this.shape.height)) {
+                this.health = 0;
+                this.velocity_x = 0;
+            }
+        }
+
         // Die.
         if (this.health <= 0) {
             if (this.parent) {

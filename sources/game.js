@@ -45,6 +45,7 @@ export default class Game extends PIXI.Container {
             max_y: -Infinity,
         };
         this.lock_camera = false;
+        this.lasers = [];
 
         this.layers.addChild(this.auto_layer);
         this.layers.addChild(this.background_tiles_layer);
@@ -61,6 +62,8 @@ export default class Game extends PIXI.Container {
     }
 
     update_normal(elapsed_time) {
+        this.lasers = [];
+
         if (this.hasOwnProperty("debug_draw_layer")) {
             this.debug_draw_layer.clear();
         }
