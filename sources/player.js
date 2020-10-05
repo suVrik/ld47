@@ -16,6 +16,8 @@ export default class Player extends MovieClip {
             attack_2: { frames: resources.sprites["characters_player_attack_2"], speed: 0.3, loop: false },
             death_by_energy: { frames: resources.sprites["characters_player_death_energy"], speed: 0.2, loop: false },
             death_by_spikes: { frames: resources.sprites["characters_player_death_hands"], speed: 0.2, loop: false },
+            death_by_falling: { frames: resources.sprites["characters_player_death_falling"], speed: 0.1, loop: false },
+            dead: { frames: resources.sprites["characters_player_death_dead"], speed: 0.1, loop: false },
         }, "idle");
 
         this.anchor.set(0.5, 1.0);
@@ -37,6 +39,7 @@ export default class Player extends MovieClip {
         this.is_dead = false;
         this.death_by_energy = false;
         this.death_by_spikes = false;
+        this.death_by_falling = false;
         this.death_timeout = 0.0;
 
         state.player = this;
@@ -117,9 +120,9 @@ export default class Player extends MovieClip {
             const speed_factor = 1 - attack_slowdown_weight * (1 - config.player.attack_slowdown_factor);
 
             if (is_left_down && !is_right_down) {
-                this.velocity_x = Math.max(-speed_factor * config.player.speed * elapsed_time, this.velocity_x - config.player.acceleration * elapsed_time);
+                this.velocity_x = Math.max(-speed_factor * config.player.speed, this.velocity_x - config.player.acceleration * elapsed_time);
             } else if (!is_left_down && is_right_down) {
-                this.velocity_x = Math.min(speed_factor * config.player.speed * elapsed_time, this.velocity_x + config.player.acceleration * elapsed_time);
+                this.velocity_x = Math.min(speed_factor * config.player.speed, this.velocity_x + config.player.acceleration * elapsed_time);
             } else {
                 if (this.velocity_x > 0) {
                     this.velocity_x = Math.max(0, this.velocity_x - config.player.acceleration * elapsed_time);
@@ -145,7 +148,7 @@ export default class Player extends MovieClip {
 
         const result = state.game.physics.move_x(
             this.shape.x, this.shape.y, this.shape.width, this.shape.height,
-            config.collision_types.environment | config.collision_types.enemies, this.velocity_x
+            config.collision_types.environment | config.collision_types.enemies, this.velocity_x * elapsed_time
         );
 
         this.x += result.offset;
@@ -245,10 +248,49 @@ export default class Player extends MovieClip {
                 } else if (this.death_by_spikes) {
                     this.gotoAndPlay("death_by_spikes");
                 }
-                this.y += this.velocity_y * elapsed_time;
-                this.velocity_y *= 0.9;
-                this.x += this.velocity_x * elapsed_time;
-                this.velocity_x *= 0.95;
+
+                if (this.death_by_falling) {
+                    this.shape.x = this.x - config.tile_size / 2;
+                    this.shape.y = this.y - config.tile_size;
+                    this.shape.width = config.tile_size;
+                    this.shape.height = config.tile_size;
+
+                    this.velocity_x *= config.player.death_by_falling_velocity_falling;
+                    this.velocity_y += config.player.death_by_falling_gravity * elapsed_time;
+
+                    let result = state.game.physics.move_x(
+                        this.shape.x, this.shape.y, this.shape.width, this.shape.height,
+                        config.collision_types.environment | config.collision_types.enemies, this.velocity_x * elapsed_time
+                    );
+
+                    this.x += result.offset;
+                    this.shape.x = this.x - config.tile_size / 2;
+
+                    result = state.game.physics.move_y(
+                        this.shape.x, this.shape.y, this.shape.width, this.shape.height,
+                        config.collision_types.environment | config.collision_types.platform | config.collision_types.enemies, this.velocity_y * elapsed_time,
+                        shape => {
+                            if ((shape.mask & config.collision_types.platform) !== 0) {
+                                return shape.y > this.y - 1e-8;
+                            }
+                            return true;
+                        }
+                    );
+
+                    this.y += result.offset;
+
+                    if (result.bottom) {
+                        this.gotoAndPlay("dead");
+                    } else {
+                        this.gotoAndPlay("death_by_falling");
+                    }
+                } else {
+                    this.velocity_x *= 0.95;
+                    this.velocity_y *= 0.9;
+                    this.x += this.velocity_x * elapsed_time;
+                    this.y += this.velocity_y * elapsed_time;
+                }
+
                 this.death_timeout -= elapsed_time;
             } else {
                 state.game.unload_all_levels();

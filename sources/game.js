@@ -158,7 +158,7 @@ export default class Game extends PIXI.Container {
                         }
                     }
                     if (!ok) {
-                        if (this.entities[i].hasOwnProperty("parent")) {
+                        if (this.entities[i].hasOwnProperty("parent") && this.entities[i].parent) {
                             this.entities[i].parent.removeChild(this.entities[i]);
                         }
                         if (typeof this.entities[i] === "function") {

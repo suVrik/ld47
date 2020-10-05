@@ -63,8 +63,8 @@ export default class Level {
                     this.add_physics(rectangle, config.collision_types.environment, chunk);
                     break;
                 case config.grid.spikes:
-                    this.for_each_tile(rectangle, chunk, (x, y) => {
-                        state.game.add_entity(new Spike(x, y, rectangle.width, rectangle.height));
+                    this.for_each_tile(rectangle, chunk, (x, y, is_side) => {
+                        state.game.add_entity(new Spike(x, y, rectangle.width, rectangle.height, is_side));
                     });
                     break;
                 case config.grid.platform:
@@ -255,7 +255,8 @@ export default class Level {
                 const local_x = (rectangle.x + x) * config.tile_size;
                 const local_y = (rectangle.y + y) * config.tile_size;
                 if (local_x >= chunk.x && local_y >= chunk.y && local_x < chunk.x + chunk.width && local_y < chunk.y + chunk.height) {
-                    callback(this.x + local_x, this.y + local_y);
+                    callback(this.x + local_x, this.y + local_y,
+                        rectangle.width > 1 ? (x === 0 || x + 1 === rectangle.width) : (y === 0 || y + 1 === rectangle.height));
                 }
             }
         }

@@ -9,7 +9,7 @@ export default class MovingPlatform extends PIXI.AnimatedSprite {
         super(resources.sprites["characters_platform_moving"]);
 
         this.path = [];
-        this.path.push({ cx: x, cy: y });
+        this.path.push({ cx: x, cy: y + config.tile_size / 2 });
         if (path) {
             for (const point of path) {
                 this.path.push({

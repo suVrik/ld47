@@ -37,6 +37,9 @@ export default class Hazard extends PIXI.AnimatedSprite {
     }
 
     update_normal(elapsed_time) {
+        this.pivot.x = Math.random() * 4 - 2;
+        this.pivot.y = Math.random() * 4 - 2;
+
         const next = this.path[(this.current_index + 1) % this.path.length];
         if (Utils.equal(next.cx, this.x) && Utils.equal(next.cy, this.y)) {
             this.current_index = (this.current_index + 1) % this.path.length;

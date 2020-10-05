@@ -100,15 +100,15 @@ export default {
     player: {
         width: 12,
         height: 16,
-        acceleration: 50, // px/sec^2
+        acceleration: 1250, // px/sec^2
         speed: 150, // px/sec
         jump: 210, // px/sec
         gravity: 800, // px/sec^2
         pressure: 50, // px/sec
         gravity_factor: 0.5,
         attack_timeout: 0.125, // sec
-        attack_velocity_short: 18, // px/sec
-        attack_velocity_long: 22, // px/sec
+        attack_velocity_short: 1080, // px/sec
+        attack_velocity_long: 1320, // px/sec
         attack_velocity_falling_short: 0.5,
         attack_velocity_falling_long: 0.8,
         attack_slowdown_timeout: 0.6, // sec
@@ -116,11 +116,16 @@ export default {
         attack_range: 5, // px
         death_by_energy_timeout: 1, // sec
         death_by_spikes_timeout: 1, // sec
+        death_by_falling_timeout: 1, // sec
+        death_by_falling_velocity_x: 100, // px/sec
+        death_by_falling_velocity_y: 50, // px/sec
+        death_by_falling_gravity: 400, // px/sec^2
+        death_by_falling_velocity_falling: 0.95,
         hitbox_offset: 2, // px
     },
     spikes: {
         appear_distance: 100,
-        width: 6,
+        width: 2,
         length: 22,
     },
     zombie: {
@@ -132,6 +137,12 @@ export default {
         damage_velocity: 100, // px/sec
         velocity_falling: 0.8,
         damage_timeout: 0.1, // sec
+        attack_prepare: 20, // px
+        attack_range: 18, // px
+        attack_height: 20, // px
+        health: 4,
+        attack_cooldown: 0.5,
+        death_velocity_falling: 0.9,
     },
     hazard: {
         width: 16,

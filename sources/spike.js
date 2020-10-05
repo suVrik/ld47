@@ -6,7 +6,7 @@ import state from "./state";
 import Utils from "./utils";
 
 export default class Spike extends PIXI.Container {
-    constructor(x, y, width, height) {
+    constructor(x, y, width, height, is_side) {
         super();
 
         this.goo = new PIXI.AnimatedSprite(resources.sprites["objects_tall_goo_black"]);
@@ -41,6 +41,7 @@ export default class Spike extends PIXI.Container {
             // No mask, because this shape is just a bounding box.
         };
         this.pending_to_initialize = true;
+        this.is_side = is_side;
     }
 
     update_normal(elapsed_time) {
@@ -90,10 +91,12 @@ export default class Spike extends PIXI.Container {
         }
 
         if (!state.player.is_dead) {
+            const __width = this.is_side ? config.spikes.width : config.tile_size;
+
             if (this.rotation !== 0) {
                 // horizontal
 
-                if (Utils.aabb(this.x - (config.spikes.length - config.tile_size) / 2, this.y + (config.tile_size - config.spikes.width) / 2, config.spikes.length, config.spikes.width,
+                if (Utils.aabb(this.x - (config.spikes.length - config.tile_size) / 2, this.y + (config.tile_size - __width) / 2, config.spikes.length, __width,
                                state.player.shape.x + config.player.hitbox_offset, state.player.shape.y + config.player.hitbox_offset,
                                state.player.shape.width - config.player.hitbox_offset * 2, state.player.shape.height - config.player.hitbox_offset * 2)) {
                     state.player.is_dead = true;
@@ -113,13 +116,13 @@ export default class Spike extends PIXI.Container {
 
                 if (state.game.hasOwnProperty("debug_draw_layer")) {
                     state.game.debug_draw_layer.beginFill(0xFF0000);
-                    state.game.debug_draw_layer.drawRect(this.x - (config.spikes.length - config.tile_size) / 2, this.y + (config.tile_size - config.spikes.width) / 2, config.spikes.length, config.spikes.width);
+                    state.game.debug_draw_layer.drawRect(this.x - (config.spikes.length - config.tile_size) / 2, this.y + (config.tile_size - __width) / 2, config.spikes.length, __width);
                     state.game.debug_draw_layer.endFill();
                 }
             } else {
                 // vertical
 
-                if (Utils.aabb(this.x + (config.tile_size - config.spikes.width) / 2, this.y - (config.spikes.length - config.tile_size) / 2, config.spikes.width, config.spikes.length,
+                if (Utils.aabb(this.x + (config.tile_size - __width) / 2, this.y - (config.spikes.length - config.tile_size) / 2, __width, config.spikes.length,
                                state.player.shape.x + config.player.hitbox_offset, state.player.shape.y + config.player.hitbox_offset,
                                state.player.shape.width - config.player.hitbox_offset * 2, state.player.shape.height - config.player.hitbox_offset * 2)) {
                     state.player.is_dead = true;
@@ -139,7 +142,7 @@ export default class Spike extends PIXI.Container {
 
                 if (state.game.hasOwnProperty("debug_draw_layer")) {
                     state.game.debug_draw_layer.beginFill(0xFF0000);
-                    state.game.debug_draw_layer.drawRect(this.x + (config.tile_size - config.spikes.width) / 2, this.y - (config.spikes.length - config.tile_size) / 2, config.spikes.width, config.spikes.length);
+                    state.game.debug_draw_layer.drawRect(this.x + (config.tile_size - __width) / 2, this.y - (config.spikes.length - config.tile_size) / 2, __width, config.spikes.length);
                     state.game.debug_draw_layer.endFill();
                 }
             }
