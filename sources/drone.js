@@ -5,17 +5,22 @@ import state from "./state";
 import Utils from "./utils";
 
 export default class Drone extends MovieClip {
-    constructor(x, y, shapes, path, offset_x, offset_y) {
+    constructor(x, y, path, offset_x, offset_y) {
         super({
             idle: { frames: resources.sprites["characters_drone_idle"], speed: 0.15 },
             activate: { frames: resources.sprites["characters_drone_activate"], speed: 0.2 },
             attack: { frames: resources.sprites["characters_drone_attack"], speed: 0.2 },
         }, "idle");
 
-        this.path = [ { cx: Math.floor((x - offset_x) / config.tile_size), cy: Math.floor((y - offset_y) / config.tile_size) } ].concat(path || []);
-        for (const point of this.path) {
-            point.cx = (point.cx + 0.5) * config.tile_size + offset_x;
-            point.cy = (point.cy + 0.5) * config.tile_size + offset_y;
+        this.path = [];
+        this.path.push({ cx: x, cy: y });
+        if (path) {
+            for (const point of path) {
+                this.path.push({
+                    cx: (point.cx + 0.5) * config.tile_size + offset_x,
+                    cy: (point.cy + 0.5) * config.tile_size + offset_y,
+                });
+            }
         }
 
         this.current_index = 0;
@@ -33,7 +38,7 @@ export default class Drone extends MovieClip {
         this.damaged_timeout = 0;
         this.velocity_x = 0;
 
-        shapes.push(this.shape);
+        state.game.entity_shapes.push(this.shape);
 
         this.play();
     }

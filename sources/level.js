@@ -72,12 +72,12 @@ export default class Level {
                     break;
                 case config.grid.breaking_tiles:
                     this.for_each_tile(rectangle, chunk, (x, y) => {
-                        state.game.add_entity(new BreakingTile(x, y, this.shapes));
+                        state.game.add_entity(new BreakingTile(x, y));
                     });
                     break;
                 case config.grid.disappearing_platforms:
                     this.for_each_tile(rectangle, chunk, (x, y) => {
-                        state.game.add_entity(new DisappearingPlatform(x, y, this.shapes));
+                        state.game.add_entity(new DisappearingPlatform(x, y));
                     });
                     break;
                 default:
@@ -132,13 +132,12 @@ export default class Level {
                 entity_prototype.x < chunk.x + chunk.width && entity_prototype.y < chunk.y + chunk.height) {
                 switch (entity_prototype.name) {
                     case "Player":
-                        state.game.add_entity(new Player(entity_prototype.x, entity_prototype.y, this.shapes));
+                        state.game.add_entity(new Player(entity_prototype.x, entity_prototype.y));
                         break;
                     case "Zombie":
                         state.game.add_entity(new Zombie(
                             this.x + entity_prototype.x,
                             this.y + entity_prototype.y,
-                            this.shapes,
                             entity_prototype.fields["Destination"],
                             entity_prototype.fields["InitialPosition"],
                             entity_prototype.fields["IdleDuration"],
@@ -160,7 +159,6 @@ export default class Level {
                         state.game.add_entity(new Drone(
                             this.x + entity_prototype.x,
                             this.y + entity_prototype.y,
-                            this.shapes,
                             entity_prototype.fields["Path"],
                             this.x,
                             this.y
@@ -170,7 +168,6 @@ export default class Level {
                         state.game.add_entity(new MovingPlatform(
                             this.x + entity_prototype.x,
                             this.y + entity_prototype.y,
-                            this.shapes,
                             entity_prototype.fields["Path"],
                             entity_prototype.fields["Speed"],
                             entity_prototype.fields["WaitTime"],
@@ -229,6 +226,10 @@ export default class Level {
         this.auto_layer.parent.removeChild(this.auto_layer);
         this.background_tiles_layer.parent.removeChild(this.background_tiles_layer);
         this.foreground_tiles_layer.parent.removeChild(this.foreground_tiles_layer);
+
+        this.auto_layer.destroy({ children: true });
+        this.background_tiles_layer.destroy({ children: true });
+        this.foreground_tiles_layer.destroy({ children: true });
 
         // Entities are managed by Game.
     }

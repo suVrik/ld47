@@ -22,6 +22,15 @@ export default class Game extends PIXI.Container {
         this.debug_draw_layer = new PIXI.Graphics();
 
         this.physics = new Physics();
+        this.entity_shapes = [];
+
+        // TODO: Come up with a better solution next time.
+        const chunk = this.physics.add_chunk(this.entity_shapes);
+        chunk.bounding_box.x = -100000;
+        chunk.bounding_box.y = -100000;
+        chunk.bounding_box.width = 200000;
+        chunk.bounding_box.height = 200000;
+
         this.trigger_manager = new TriggerManager();
         this.entities = [];
         this.level_origin = {
@@ -126,7 +135,55 @@ export default class Game extends PIXI.Container {
 
             this.recompute_bounding_box();
 
-            // TODO: Clear all out of bounding box entities.
+            const before = this.entities.length;
+            const before_2 = state.game.entity_shapes.length;
+            for (let i = 0; i < this.entities.length; i++) {
+                if (this.entities[i].hasOwnProperty("shape")) {
+                    let ok = false;
+                    for (const level in this.loaded_levels) {
+                        if (this.loaded_levels.hasOwnProperty(level)) {
+                            const entity = this.entities[i].shape;
+                            const box = this.loaded_levels[level].bounding_box;
+                            if (Utils.aabb(entity.x, entity.y, entity.width, entity.height, box.min_x, box.min_y, box.max_x - box.min_x, box.max_y - box.min_y)) {
+                                ok = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!ok) {
+                        if (this.entities[i].hasOwnProperty("parent")) {
+                            this.entities[i].parent.removeChild(this.entities[i]);
+                        }
+                        if (typeof this.entities[i] === "function") {
+                            this.entities[i].destroy({ children: true });
+                        }
+                        if (this.entities[i].shape.hasOwnProperty("mask")) {
+                            const index = state.game.entity_shapes.indexOf(this.entities[i].shape);
+                            if (index >= 0) {
+                                state.game.entity_shapes.splice(index, 1);
+                            }
+                        }
+                        this.entities.splice(i, 1);
+                        i--;
+                    }
+                } else {
+                    console.error("Every entity must have a shape property for clean up")
+                }
+            }
+            console.log(`${before - this.entities.length} entities cleaned up, ${this.entities.length} are left`);
+            console.log(`${before_2 - state.game.entity_shapes.length} entity shapes cleaned up, ${state.game.entity_shapes.length} are left`);
+        }
+    }
+
+    unload_all_levels() {
+        const level_names = [];
+        for (const level_name in this.loaded_levels) {
+            if (this.loaded_levels.hasOwnProperty(level_name)) {
+                level_names.push(level_name);
+            }
+        }
+        for (const level_name of level_names) {
+            this.unload_level(level_name);
         }
     }
 

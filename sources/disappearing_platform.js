@@ -5,7 +5,7 @@ import state from "./state";
 import Utils from "./utils";
 
 export default class DisappearingPlatform extends MovieClip {
-    constructor(x, y, shapes) {
+    constructor(x, y) {
         resources.sprites["objects_small_platform_disappear_reverse"] =
             resources.sprites["objects_small_platform_disappear_reverse"] || resources.sprites["objects_small_platform_disappear"].slice().reverse();
 
@@ -26,7 +26,7 @@ export default class DisappearingPlatform extends MovieClip {
         this.timeout_1 = 0;
         this.timeout_2 = 0;
 
-        shapes.push(this.shape);
+        state.game.entity_shapes.push(this.shape);
 
         this.play();
     }

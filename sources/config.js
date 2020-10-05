@@ -100,7 +100,7 @@ export default {
     player: {
         width: 12,
         height: 16,
-        acceleration: 300, // px/sec^2
+        acceleration: 100, // px/sec^2
         speed: 150, // px/sec
         jump: 210, // px/sec
         gravity: 800, // px/sec^2
@@ -114,6 +114,7 @@ export default {
         attack_slowdown_timeout: 0.6, // sec
         attack_slowdown_factor: 0.35,
         attack_range: 5, // px
+        death_by_energy_timeout: 1, // sec
     },
     spikes: {
         appear_distance: 100,
@@ -131,6 +132,7 @@ export default {
     hazard: {
         width: 16,
         height: 16,
+        radius: 6,
     },
     drone: {
         width: 16,

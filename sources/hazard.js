@@ -8,10 +8,15 @@ export default class Hazard extends PIXI.AnimatedSprite {
     constructor(x, y, path, speed, offset_x, offset_y) {
         super(resources.sprites["characters_flying_hazard"]);
 
-        this.path = [ { cx: Math.floor((x - offset_x) / config.tile_size), cy: Math.floor((y - offset_y) / config.tile_size) } ].concat(path || []);
-        for (const point of this.path) {
-            point.cx = (point.cx + 0.5) * config.tile_size + offset_x;
-            point.cy = (point.cy + 0.5) * config.tile_size + offset_y;
+        this.path = [];
+        this.path.push({ cx: x, cy: y });
+        if (path) {
+            for (const point of path) {
+                this.path.push({
+                    cx: (point.cx + 0.5) * config.tile_size + offset_x,
+                    cy: (point.cy + 0.5) * config.tile_size + offset_y,
+                });
+            }
         }
 
         this.current_index = 0;
@@ -20,6 +25,13 @@ export default class Hazard extends PIXI.AnimatedSprite {
         this.speed = speed;
         this.x = x;
         this.y = y;
+        this.shape = {
+            x: this.x - config.hazard.width / 2,
+            y: this.y - config.hazard.height / 2,
+            width: config.hazard.width,
+            height: config.hazard.height,
+            // No mask, because this shape is just a bounding box.
+        };
 
         this.play();
     }
@@ -34,5 +46,20 @@ export default class Hazard extends PIXI.AnimatedSprite {
             this.x += (next.cx - this.x) / distance * speed;
             this.y += (next.cy - this.y) / distance * speed;
         }
+
+        this.update_shape();
+
+        if (!state.player.is_dead) {
+            if (Utils.circle_rectangle(this.x, this.y, config.hazard.radius, state.player.shape.x, state.player.shape.y, state.player.shape.width, state.player.shape.height)) {
+                state.player.is_dead = true;
+                state.player.death_by_energy = true;
+                state.player.death_timeout = config.player.death_by_energy_timeout;
+            }
+        }
+    }
+
+    update_shape() {
+        this.shape.x = this.x - config.hazard.width / 2;
+        this.shape.y = this.y - config.hazard.height / 2;
     }
 }

@@ -6,7 +6,7 @@ import state from "./state";
 import MovieClip from "./movie_clip";
 
 export default class Player extends MovieClip {
-    constructor(x, y, shapes) {
+    constructor(x, y) {
         super({
             idle: { frames: resources.sprites["characters_player_idle"], speed: 0.15 },
             run: { frames: resources.sprites["characters_player_run"], speed: 0.2 },
@@ -14,6 +14,7 @@ export default class Player extends MovieClip {
             jump_down: { frames: resources.sprites["characters_player_jump_down"], speed: 0.15 },
             attack_1: { frames: resources.sprites["characters_player_attack_1"], speed: 0.3, loop: false },
             attack_2: { frames: resources.sprites["characters_player_attack_2"], speed: 0.3, loop: false },
+            death_by_energy: { frames: resources.sprites["characters_player_death_energy"], speed: 0.2, loop: false },
         }, "idle");
 
         this.anchor.set(0.5, 1.0);
@@ -32,12 +33,15 @@ export default class Player extends MovieClip {
         this.attack_animation = 0;
         this.attack_timeout = 0;
         this.attack_slowdown_timeout = 0;
+        this.is_dead = false;
+        this.death_by_energy = false;
+        this.death_timeout = 0.0;
 
         state.player = this;
 
         this.play();
 
-        shapes.push(this.shape);
+        state.game.entity_shapes.push(this.shape);
     }
 
     update_normal(elapsed_time) {
@@ -45,9 +49,15 @@ export default class Player extends MovieClip {
         this.process_movement(elapsed_time);
         this.process_gravity_and_jump(elapsed_time);
         this.process_animation();
+        this.process_death(elapsed_time);
     }
 
     process_fighting(elapsed_time) {
+        // Dead don't fight.
+        if (this.is_dead) {
+            return;
+        }
+
         const is_attack_pressed = state.input.is_pressed("KeyX", 88) || state.input.is_pressed("Enter", 13);
         const is_left_down = state.input.is_down("ArrowLeft", 37) || state.input.is_down("KeyA", 65);
         const is_right_down = state.input.is_down("ArrowRight", 39) || state.input.is_down("KeyD", 68);
@@ -85,6 +95,11 @@ export default class Player extends MovieClip {
     }
 
     process_movement(elapsed_time) {
+        // Dead don't move.
+        if (this.is_dead) {
+            return;
+        }
+
         const is_left_down = state.input.is_down("ArrowLeft", 37) || state.input.is_down("KeyA", 65);
         const is_right_down = state.input.is_down("ArrowRight", 39) || state.input.is_down("KeyD", 68);
 
@@ -134,6 +149,11 @@ export default class Player extends MovieClip {
     }
 
     process_gravity_and_jump(elapsed_time) {
+        // Dead never fall.
+        if (this.is_dead) {
+            return;
+        }
+
         const is_jump_down = state.input.is_down("KeyZ", 90) || state.input.is_down("Space", 32);
         const is_jump_pressed = state.input.is_pressed("KeyZ", 90) || state.input.is_pressed("Space", 32);
         const is_down_pressed = state.input.is_pressed("ArrowDown", 40) || state.input.is_pressed("KeyS", 83);
@@ -178,6 +198,11 @@ export default class Player extends MovieClip {
     }
 
     process_animation() {
+        // Dead don't animate.
+        if (this.is_dead) {
+            return;
+        }
+
         if (this.velocity_x > 1e-8) {
             this.scale.x = 1;
         } else if (this.velocity_x < -1e-8) {
@@ -199,6 +224,24 @@ export default class Player extends MovieClip {
                 } else {
                     this.gotoAndPlay("idle");
                 }
+            }
+        }
+    }
+
+    process_death(elapsed_time) {
+        if (this.is_dead) {
+            if (this.death_timeout > 1e-8) {
+                if (this.death_by_energy) {
+                    this.gotoAndPlay("death_by_energy")
+                }
+                this.y += this.velocity_y * elapsed_time;
+                this.velocity_y *= 0.9;
+                this.x += this.velocity_x * elapsed_time;
+                this.velocity_x *= 0.95;
+                this.death_timeout -= elapsed_time;
+            } else {
+                state.game.unload_all_levels();
+                state.game.load_level("Intro", 0, 0);
             }
         }
     }

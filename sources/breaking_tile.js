@@ -5,7 +5,7 @@ import state from "./state";
 import Utils from "./utils";
 
 export default class BreakingTile extends PIXI.Sprite {
-    constructor(x, y, shapes) {
+    constructor(x, y) {
         super(resources.sprites["objects_small_destructible_stages_0"]);
 
         this.x = x;
@@ -21,7 +21,7 @@ export default class BreakingTile extends PIXI.Sprite {
         this.timeout = 0;
         this.filters = [];
 
-        shapes.push(this.shape);
+        state.game.entity_shapes.push(this.shape);
     }
 
     update_normal(elapsed_time) {

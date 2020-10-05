@@ -28,7 +28,7 @@ export default class Physics {
             }
         }
 
-        this.chunks.push({
+        const chunk = {
             shapes: shapes,
             bounding_box: {
                 x: min_x,
@@ -36,7 +36,11 @@ export default class Physics {
                 width: max_x - min_x,
                 height: max_y - min_y,
             },
-        });
+        };
+
+        this.chunks.push(chunk);
+
+        return chunk;
     }
 
     remove_chunk(shapes) {

@@ -5,7 +5,7 @@ import state from "./state";
 import Utils from "./utils";
 
 export default class Zombie extends MovieClip {
-    constructor(x, y, shapes, destination, initial, idle_duration, face_right, x_offset) {
+    constructor(x, y, destination, initial, idle_duration, face_right, x_offset) {
         super({
             idle: { frames: resources.sprites["characters_zombie_idle"], speed: 0.1 },
             walk: { frames: resources.sprites["characters_zombie_walk"], speed: 0.1 },
@@ -36,7 +36,7 @@ export default class Zombie extends MovieClip {
             this.scale.x = -1;
         }
 
-        shapes.push(this.shape);
+        state.game.entity_shapes.push(this.shape);
 
         this.play();
     }
