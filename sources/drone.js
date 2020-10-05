@@ -95,7 +95,7 @@ export default class Drone extends MovieClip {
 
         // Movement.
         const next = this.path[(this.current_index + 1) % this.path.length];
-        if (Utils.equal(next.cx, this.x, 1e-5) && Utils.equal(next.cy, this.y, 1e-5)) {
+        if (Utils.equal(next.cx, this.x, 1e-3) && Utils.equal(next.cy, this.y, 1e-3)) {
             this.current_index = (this.current_index + 1) % this.path.length;
         } else {
             const distance = Utils.distance(this.x, this.y, next.cx, next.cy);

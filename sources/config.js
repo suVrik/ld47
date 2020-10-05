@@ -11,6 +11,7 @@ export default {
         spikes: 1,
         platform: 2,
         breaking_tiles: 3,
+        disappearing_platforms: 4,
     },
     collision_types: {
         none: 0x00000000,
@@ -84,9 +85,11 @@ export default {
         MovingPlatform: 5,
         Spike: 6,
         Zombie: 7,
+        DisappearingPlatform: 8,
     },
     render_priority: {
         BreakingTile: 0,
+        DisappearingPlatform: 0,
         Drone: 0,
         Hazard: 0,
         MovingPlatform: 0,
@@ -137,5 +140,9 @@ export default {
         damage_timeout: 0.1, // sec
         damage_velocity: 200, // px/sec
         velocity_falling: 0.95,
+    },
+    disappearing_platform: {
+        timeout_1: 0.4,
+        timeout_2: 2,
     },
 };

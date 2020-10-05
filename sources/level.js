@@ -2,6 +2,7 @@
 
 import BreakingTile from "./breaking_tile";
 import config from "./config";
+import DisappearingPlatform from "./disappearing_platform";
 import Drone from "./drone";
 import Hazard from "./hazard";
 import MovingPlatform from "./moving_platform";
@@ -72,6 +73,11 @@ export default class Level {
                 case config.grid.breaking_tiles:
                     this.for_each_tile(rectangle, chunk, (x, y) => {
                         state.game.add_entity(new BreakingTile(x, y, this.shapes));
+                    });
+                    break;
+                case config.grid.disappearing_platforms:
+                    this.for_each_tile(rectangle, chunk, (x, y) => {
+                        state.game.add_entity(new DisappearingPlatform(x, y, this.shapes));
                     });
                     break;
                 default:
