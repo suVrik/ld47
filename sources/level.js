@@ -1,6 +1,7 @@
 "use strict";
 
 import BreakingTile from "./breaking_tile";
+import Checkpoint from "./checkpoint";
 import config from "./config";
 import DisappearingPlatform from "./disappearing_platform";
 import Drone from "./drone";
@@ -12,7 +13,6 @@ import resources from "./resources";
 import Spike from "./spike";
 import state from "./state";
 import TriggerZone from "./trigger_zone";
-import Utils from "./utils";
 import Zombie from "./zombie";
 
 export default class Level {
@@ -133,7 +133,7 @@ export default class Level {
                 entity_prototype.x < chunk.x + chunk.width && entity_prototype.y < chunk.y + chunk.height) {
                 switch (entity_prototype.name) {
                     case "Player":
-                        state.game.add_entity(new Player(entity_prototype.x, entity_prototype.y));
+                        state.game.add_entity(new Player(this.x + entity_prototype.x, this.y + entity_prototype.y));
                         break;
                     case "Zombie":
                         state.game.add_entity(new Zombie(
@@ -172,8 +172,17 @@ export default class Level {
                             entity_prototype.fields["Path"],
                             entity_prototype.fields["Speed"],
                             entity_prototype.fields["WaitTime"],
+                            entity_prototype.fields["StartIdx"],
+                            entity_prototype.fields["EndIdx"],
                             this.x,
                             this.y
+                        ));
+                        break;
+                    case "Checkpoint":
+                        state.game.add_entity(new Checkpoint(
+                            this.x + entity_prototype.x,
+                            this.y + entity_prototype.y,
+                            entity_prototype.fields["Radius"],
                         ));
                         break;
                     case "TriggerZone":
@@ -236,16 +245,20 @@ export default class Level {
     }
 
     add_physics(rectangle, mask, chunk) {
-        const shape = {
-            x: this.x + rectangle.x * config.tile_size,
-            y: this.y + rectangle.y * config.tile_size,
-            width: rectangle.width * config.tile_size,
-            height: rectangle.height * config.tile_size,
-            mask: mask,
-        };
+        const min_x = Math.max(rectangle.x * config.tile_size, chunk.x);
+        const min_y = Math.max(rectangle.y * config.tile_size, chunk.y);
+        const max_x = Math.min((rectangle.x + rectangle.width) * config.tile_size, chunk.x + chunk.width);
+        const max_y = Math.min((rectangle.y + rectangle.height) * config.tile_size, chunk.y + chunk.height);
 
-        if (Utils.aabb(shape.x, shape.y, shape.width, shape.height,
-                       this.x + chunk.x, this.y + chunk.y, chunk.width, chunk.height)) {
+        if (min_x < max_x && min_y < max_y) {
+            const shape = {
+                x: this.x + min_x,
+                y: this.y + min_y,
+                width: max_x - min_x,
+                height: max_y - min_y,
+                mask: mask,
+            };
+
             this.shapes.push(shape);
         }
     }

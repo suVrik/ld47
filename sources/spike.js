@@ -33,12 +33,11 @@ export default class Spike extends PIXI.Container {
 
         this.x = x;
         this.y = y;
-        this.shape = {
+        this.bbox = {
             x: this.x,
             y: this.y,
             width: config.tile_size,
             height: config.tile_size,
-            // No mask, because this shape is just a bounding box.
         };
         this.pending_to_initialize = true;
         this.is_side = is_side;

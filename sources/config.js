@@ -87,9 +87,11 @@ export default {
         Spike: 6,
         Zombie: 7,
         DisappearingPlatform: 8,
+        Checkpoint: 9,
     },
     render_priority: {
         BreakingTile: 0,
+        Checkpoint: 0,
         DisappearingPlatform: 0,
         Drone: 0,
         Hazard: 0,
@@ -127,7 +129,7 @@ export default {
     },
     spikes: {
         appear_distance: 100,
-        width: 2,
+        width: 1,
         length: 20,
     },
     zombie: {
@@ -139,11 +141,11 @@ export default {
         damage_velocity: 100, // px/sec
         velocity_falling: 0.8,
         damage_timeout: 0.1, // sec
-        attack_prepare: 20, // px
+        attack_prepare: 22, // px
         attack_range: 18, // px
         attack_height: 20, // px
         health: 4,
-        attack_cooldown: 0.5,
+        attack_cooldown: 0.3,
         death_velocity_falling: 0.9,
     },
     hazard: {

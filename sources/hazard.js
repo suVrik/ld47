@@ -19,19 +19,29 @@ export default class Hazard extends PIXI.AnimatedSprite {
             }
         }
 
+        let bbox_min_x = Infinity;
+        let bbox_min_y = Infinity;
+        let bbox_max_x = -Infinity;
+        let bbox_max_y = -Infinity;
+        for (const point of this.path) {
+            bbox_min_x = Math.min(bbox_min_x, point.cx - config.hazard.width / 2);
+            bbox_min_y = Math.min(bbox_min_y, point.cy - config.hazard.height / 2);
+            bbox_max_x = Math.max(bbox_max_x, point.cx + config.hazard.width / 2);
+            bbox_max_y = Math.max(bbox_max_y, point.cy + config.hazard.height / 2);
+        }
+        this.bbox = {
+            x: bbox_min_x,
+            y: bbox_min_y,
+            width: bbox_max_x - bbox_min_x,
+            height: bbox_max_y - bbox_max_y,
+        };
+
         this.current_index = 0;
         this.animationSpeed = 0.2;
         this.anchor.set(0.5, 0.5);
         this.speed = speed;
         this.x = x;
         this.y = y;
-        this.shape = {
-            x: this.x - config.hazard.width / 2,
-            y: this.y - config.hazard.height / 2,
-            width: config.hazard.width,
-            height: config.hazard.height,
-            // No mask, because this shape is just a bounding box.
-        };
 
         this.play();
     }
@@ -50,8 +60,6 @@ export default class Hazard extends PIXI.AnimatedSprite {
             this.y += (next.cy - this.y) / distance * speed;
         }
 
-        this.update_shape();
-
         if (!state.player.is_dead && !state.player.is_god) {
             if (Utils.circle_rectangle(this.x, this.y, config.hazard.radius,
                                        state.player.shape.x + config.player.hitbox_offset, state.player.shape.y + config.player.hitbox_offset,
@@ -68,10 +76,5 @@ export default class Hazard extends PIXI.AnimatedSprite {
                 state.game.debug_draw_layer.endFill();
             }
         }
-    }
-
-    update_shape() {
-        this.shape.x = this.x - config.hazard.width / 2;
-        this.shape.y = this.y - config.hazard.height / 2;
     }
 }

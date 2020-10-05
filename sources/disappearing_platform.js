@@ -23,6 +23,7 @@ export default class DisappearingPlatform extends MovieClip {
             height: config.tile_size,
             mask: config.collision_types.platform,
         };
+        this.bbox = this.shape;
         this.timeout_1 = 0;
         this.timeout_2 = 0;
 

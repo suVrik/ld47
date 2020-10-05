@@ -46,6 +46,21 @@ export default class Game extends PIXI.Container {
         };
         this.lock_camera = false;
         this.lasers = [];
+        this.checkpoint = {
+            levels: [
+                {
+                    name: "Intro",
+                    chunk: null,
+                    x: 0,
+                    y: 0,
+                },
+            ],
+            origin: {
+                x: 0,
+                y: 0
+            },
+            player: null,
+        }
 
         this.layers.addChild(this.auto_layer);
         this.layers.addChild(this.background_tiles_layer);
@@ -148,11 +163,11 @@ export default class Game extends PIXI.Container {
             const before = this.entities.length;
             const before_2 = state.game.entity_shapes.length;
             for (let i = 0; i < this.entities.length; i++) {
-                if (this.entities[i].hasOwnProperty("shape")) {
+                if (this.entities[i].hasOwnProperty("bbox")) {
                     let ok = false;
                     for (const level in this.loaded_levels) {
                         if (this.loaded_levels.hasOwnProperty(level)) {
-                            const entity = this.entities[i].shape;
+                            const entity = this.entities[i].bbox;
                             const box = this.loaded_levels[level].bounding_box;
                             if (Utils.aabb(entity.x, entity.y, entity.width, entity.height, box.min_x, box.min_y, box.max_x - box.min_x, box.max_y - box.min_y)) {
                                 ok = true;
@@ -167,7 +182,7 @@ export default class Game extends PIXI.Container {
                         if (typeof this.entities[i] === "function") {
                             this.entities[i].destroy({ children: true });
                         }
-                        if (this.entities[i].shape.hasOwnProperty("mask")) {
+                        if (this.entities[i].hasOwnProperty("shape")) {
                             const index = state.game.entity_shapes.indexOf(this.entities[i].shape);
                             if (index >= 0) {
                                 state.game.entity_shapes.splice(index, 1);
@@ -177,7 +192,7 @@ export default class Game extends PIXI.Container {
                         i--;
                     }
                 } else {
-                    console.error("Every entity must have a shape property for clean up")
+                    console.error("Every entity must have a bbox property for clean up")
                 }
             }
             console.log(`${before - this.entities.length} entities cleaned up, ${this.entities.length} are left`);

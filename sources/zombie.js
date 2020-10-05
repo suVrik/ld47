@@ -15,9 +15,17 @@ export default class Zombie extends MovieClip {
 
         this.source_y = y;
         this.source_x = x;
-        this.destination_x = (destination ? destination.cx * config.tile_size : this.source_x) + x_offset;
+        this.destination_x = destination ? destination.cx * config.tile_size + x_offset : this.source_x;
         this.idle_duration = idle_duration;
         this.wait_timeout = 0;
+        this.bbox = {
+            x: Math.min(this.source_x, this.destination_x) - config.zombie.width / 2,
+            y: y - config.zombie.height,
+            width: config.zombie.width + Math.abs(this.source_x - this.destination_x),
+            height: config.zombie.height,
+        };
+        this.x = x + (this.destination_x - x) * initial;
+        this.y = y;
         this.shape = {
             x: this.x - config.zombie.width / 2,
             y: this.y - config.zombie.height,
@@ -25,8 +33,6 @@ export default class Zombie extends MovieClip {
             height: config.zombie.height,
             mask: config.collision_types.enemies,
         };
-        this.x = x + (this.destination_x - x) * initial;
-        this.y = y;
         this.anchor.set(0.5, 1.0);
         this.velocity_x = 0;
         this.velocity_y = config.zombie.pressure;

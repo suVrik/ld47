@@ -30,6 +30,7 @@ export default class Player extends MovieClip {
             height: config.player.height,
             mask: config.collision_types.player,
         };
+        this.bbox = this.shape;
         this.velocity_x = 0;
         this.velocity_y = 0;
         this.is_grounded = false;
@@ -54,6 +55,7 @@ export default class Player extends MovieClip {
         // TODO: COMMENT THIS BEFORE RELEASE
         if (state.input.is_pressed("Backquote", 192)) {
             this.is_god = !this.is_god;
+            this.velocity_x = this.velocity_y = 0;
         }
 
         this.process_fighting(elapsed_time);
@@ -363,7 +365,19 @@ export default class Player extends MovieClip {
                 this.death_timeout -= elapsed_time;
             } else {
                 state.game.unload_all_levels();
-                state.game.load_level("Intro", 0, 0);
+
+                state.game.level_origin.x = state.game.checkpoint.origin.x;
+                state.game.level_origin.y = state.game.checkpoint.origin.y;
+                for (const level_descriptor of state.game.checkpoint.levels) {
+                    if (level_descriptor.chunk) {
+                        state.game.load_level_chunk(level_descriptor.name, level_descriptor.chunk);
+                    } else {
+                        state.game.load_level(level_descriptor.name, level_descriptor.x, level_descriptor.y);
+                    }
+                }
+                if (state.game.checkpoint.player) {
+                    state.game.add_entity(new Player(state.game.checkpoint.player.x, state.game.checkpoint.player.y));
+                }
             }
         }
     }

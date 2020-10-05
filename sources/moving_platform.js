@@ -5,7 +5,7 @@ import state from "./state";
 import Utils from "./utils";
 
 export default class MovingPlatform extends PIXI.AnimatedSprite {
-    constructor(x, y, path, speed, wait_time, offset_x, offset_y) {
+    constructor(x, y, path, speed, wait_time, start_idx, end_idx, offset_x, offset_y) {
         super(resources.sprites["characters_platform_moving"]);
 
         this.path = [];
@@ -19,6 +19,25 @@ export default class MovingPlatform extends PIXI.AnimatedSprite {
             }
         }
 
+        let bbox_min_x = Infinity;
+        let bbox_min_y = Infinity;
+        let bbox_max_x = -Infinity;
+        let bbox_max_y = -Infinity;
+        for (const point of this.path) {
+            bbox_min_x = Math.min(bbox_min_x, point.cx - config.tile_size);
+            bbox_min_y = Math.min(bbox_min_y, point.cy);
+            bbox_max_x = Math.max(bbox_max_x, point.cx + config.tile_size);
+            bbox_max_y = Math.max(bbox_max_y, point.cy + config.tile_size);
+        }
+        this.bbox = {
+            x: bbox_min_x,
+            y: bbox_min_y,
+            width: bbox_max_x - bbox_min_x,
+            height: bbox_max_y - bbox_max_y,
+        };
+
+        this.start_idx = start_idx;
+        this.end_idx = end_idx;
         this.current_index = 0;
         this.animationSpeed = 0.1;
         this.anchor.set(0.5, 0);
@@ -49,7 +68,9 @@ export default class MovingPlatform extends PIXI.AnimatedSprite {
         const next = this.path[(this.current_index + 1) % this.path.length];
         if (Utils.equal(next.cx, this.x) && Utils.equal(next.cy, this.y)) {
             this.current_index = (this.current_index + 1) % this.path.length;
-            this.timeout = this.wait_time;
+            if (this.current_index === this.start_idx || this.current_index === this.end_idx) {
+                this.timeout = this.wait_time;
+            }
         } else {
             const distance = Utils.distance(this.x, this.y, next.cx, next.cy);
             const speed = Math.min(this.speed * elapsed_time, distance);

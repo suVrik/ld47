@@ -46,6 +46,23 @@ export default class Drone extends PIXI.Container {
             }
         }
 
+        let bbox_min_x = Infinity;
+        let bbox_min_y = Infinity;
+        let bbox_max_x = -Infinity;
+        let bbox_max_y = -Infinity;
+        for (const point of this.path) {
+            bbox_min_x = Math.min(bbox_min_x, point.cx - config.drone.width / 2);
+            bbox_min_y = Math.min(bbox_min_y, point.cy - config.drone.height / 2);
+            bbox_max_x = Math.max(bbox_max_x, point.cx + config.drone.width / 2);
+            bbox_max_y = Math.max(bbox_max_y, point.cy + config.drone.height / 2);
+        }
+        this.bbox = {
+            x: bbox_min_x,
+            y: bbox_min_y,
+            width: bbox_max_x - bbox_min_x,
+            height: bbox_max_y - bbox_max_y,
+        };
+
         this.current_index = 0;
         this.x = x;
         this.y = y;

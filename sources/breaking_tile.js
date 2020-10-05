@@ -17,6 +17,7 @@ export default class BreakingTile extends PIXI.Sprite {
             height: config.tile_size,
             mask: config.collision_types.environment,
         };
+        this.bbox = this.shape;
         this.hits = 0;
         this.timeout = 0;
         this.filters = [];
@@ -38,7 +39,7 @@ export default class BreakingTile extends PIXI.Sprite {
 
         // Logic.
         if (this.hits < 3) {
-            if (this.timeout <= 1e-8 && state.player.attack_timeout > 1e-8) {
+            if (this.timeout <= 1e-8 && (state.player.attack_timeout > 1e-8 || state.player.is_god)) {
                 if (Utils.aabb(state.player.shape.x - config.player.attack_range,
                                state.player.shape.y - config.player.attack_range,
                                state.player.shape.width + config.player.attack_range * 2,
