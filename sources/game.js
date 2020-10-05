@@ -19,7 +19,7 @@ export default class Game extends PIXI.Container {
         this.background_tiles_layer = new PIXI.Container();
         this.entities_layer = new PIXI.Container();
         this.foreground_tiles_layer = new PIXI.Container();
-        this.debug_draw_layer = new PIXI.Graphics();
+        //this.debug_draw_layer = new PIXI.Graphics();
 
         this.physics = new Physics();
         this.entity_shapes = [];
@@ -44,12 +44,15 @@ export default class Game extends PIXI.Container {
             max_x: -Infinity,
             max_y: -Infinity,
         };
+        this.lock_camera = false;
 
         this.layers.addChild(this.auto_layer);
         this.layers.addChild(this.background_tiles_layer);
         this.layers.addChild(this.entities_layer);
         this.layers.addChild(this.foreground_tiles_layer);
-        this.layers.addChild(this.debug_draw_layer);
+        if (this.hasOwnProperty("debug_draw_layer")) {
+            this.layers.addChild(this.debug_draw_layer);
+        }
         this.addChild(this.layers);
 
         this.cache_tile_textures();
@@ -58,12 +61,16 @@ export default class Game extends PIXI.Container {
     }
 
     update_normal(elapsed_time) {
+        if (this.hasOwnProperty("debug_draw_layer")) {
+            this.debug_draw_layer.clear();
+        }
+
         for (const entity of this.entities) {
             entity.update_normal(elapsed_time);
         }
 
         // TODO: Cooler camera code
-        if (state.player) {
+        if (state.player && !this.lock_camera) {
             this.layers.x = -state.player.x + config.window.width / 2;
             this.layers.y = -state.player.y + config.window.height / 2;
 
@@ -185,6 +192,7 @@ export default class Game extends PIXI.Container {
         for (const level_name of level_names) {
             this.unload_level(level_name);
         }
+        this.lock_camera = false;
     }
 
     cache_tile_textures() {

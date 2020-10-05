@@ -15,6 +15,7 @@ export default class Player extends MovieClip {
             attack_1: { frames: resources.sprites["characters_player_attack_1"], speed: 0.3, loop: false },
             attack_2: { frames: resources.sprites["characters_player_attack_2"], speed: 0.3, loop: false },
             death_by_energy: { frames: resources.sprites["characters_player_death_energy"], speed: 0.2, loop: false },
+            death_by_spikes: { frames: resources.sprites["characters_player_death_hands"], speed: 0.2, loop: false },
         }, "idle");
 
         this.anchor.set(0.5, 1.0);
@@ -35,6 +36,7 @@ export default class Player extends MovieClip {
         this.attack_slowdown_timeout = 0;
         this.is_dead = false;
         this.death_by_energy = false;
+        this.death_by_spikes = false;
         this.death_timeout = 0.0;
 
         state.player = this;
@@ -50,6 +52,13 @@ export default class Player extends MovieClip {
         this.process_gravity_and_jump(elapsed_time);
         this.process_animation();
         this.process_death(elapsed_time);
+
+        if (state.game.hasOwnProperty("debug_draw_layer")) {
+            state.game.debug_draw_layer.beginFill(0x00FF00);
+            state.game.debug_draw_layer.drawRect(this.shape.x + config.player.hitbox_offset, this.shape.y + config.player.hitbox_offset,
+                                                 this.shape.width - config.player.hitbox_offset * 2, this.shape.height - config.player.hitbox_offset * 2);
+            state.game.debug_draw_layer.endFill();
+        }
     }
 
     process_fighting(elapsed_time) {
@@ -232,7 +241,9 @@ export default class Player extends MovieClip {
         if (this.is_dead) {
             if (this.death_timeout > 1e-8) {
                 if (this.death_by_energy) {
-                    this.gotoAndPlay("death_by_energy")
+                    this.gotoAndPlay("death_by_energy");
+                } else if (this.death_by_spikes) {
+                    this.gotoAndPlay("death_by_spikes");
                 }
                 this.y += this.velocity_y * elapsed_time;
                 this.velocity_y *= 0.9;

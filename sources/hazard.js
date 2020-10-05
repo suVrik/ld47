@@ -50,10 +50,18 @@ export default class Hazard extends PIXI.AnimatedSprite {
         this.update_shape();
 
         if (!state.player.is_dead) {
-            if (Utils.circle_rectangle(this.x, this.y, config.hazard.radius, state.player.shape.x, state.player.shape.y, state.player.shape.width, state.player.shape.height)) {
+            if (Utils.circle_rectangle(this.x, this.y, config.hazard.radius,
+                                       state.player.shape.x + config.player.hitbox_offset, state.player.shape.y + config.player.hitbox_offset,
+                                       state.player.shape.width - config.player.hitbox_offset * 2, state.player.shape.height - config.player.hitbox_offset * 2)) {
                 state.player.is_dead = true;
                 state.player.death_by_energy = true;
                 state.player.death_timeout = config.player.death_by_energy_timeout;
+            }
+
+            if (state.game.hasOwnProperty("debug_draw_layer")) {
+                state.game.debug_draw_layer.beginFill(0xFF0000);
+                state.game.debug_draw_layer.drawCircle(this.x, this.y, config.hazard.radius);
+                state.game.debug_draw_layer.endFill();
             }
         }
     }

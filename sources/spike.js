@@ -88,5 +88,61 @@ export default class Spike extends PIXI.Container {
                 }
             }
         }
+
+        if (!state.player.is_dead) {
+            if (this.rotation !== 0) {
+                // horizontal
+
+                if (Utils.aabb(this.x - (config.spikes.length - config.tile_size) / 2, this.y + (config.tile_size - config.spikes.width) / 2, config.spikes.length, config.spikes.width,
+                               state.player.shape.x + config.player.hitbox_offset, state.player.shape.y + config.player.hitbox_offset,
+                               state.player.shape.width - config.player.hitbox_offset * 2, state.player.shape.height - config.player.hitbox_offset * 2)) {
+                    state.player.is_dead = true;
+                    state.player.death_by_spikes = true;
+                    state.player.velocity_x = 0;
+                    state.player.velocity_y = 0;
+                    state.player.y = this.y + config.tile_size / 2;
+                    state.player.rotation = this.rotation;
+                    if (this.rotation < 0) {
+                        state.player.x = this.x + 3;
+                    } else {
+                        state.player.x = this.x + 13;
+                    }
+                    state.game.lock_camera = true;
+                    state.player.death_timeout = config.player.death_by_spikes_timeout;
+                }
+
+                if (state.game.hasOwnProperty("debug_draw_layer")) {
+                    state.game.debug_draw_layer.beginFill(0xFF0000);
+                    state.game.debug_draw_layer.drawRect(this.x - (config.spikes.length - config.tile_size) / 2, this.y + (config.tile_size - config.spikes.width) / 2, config.spikes.length, config.spikes.width);
+                    state.game.debug_draw_layer.endFill();
+                }
+            } else {
+                // vertical
+
+                if (Utils.aabb(this.x + (config.tile_size - config.spikes.width) / 2, this.y - (config.spikes.length - config.tile_size) / 2, config.spikes.width, config.spikes.length,
+                               state.player.shape.x + config.player.hitbox_offset, state.player.shape.y + config.player.hitbox_offset,
+                               state.player.shape.width - config.player.hitbox_offset * 2, state.player.shape.height - config.player.hitbox_offset * 2)) {
+                    state.player.is_dead = true;
+                    state.player.death_by_spikes = true;
+                    state.player.velocity_x = 0;
+                    state.player.velocity_y = 0;
+                    state.player.x = this.x + config.tile_size / 2;
+                    if (this.scale.y < 0) {
+                        state.player.scale.y = -1;
+                        state.player.y = this.y + 13;
+                    } else {
+                        state.player.y = this.y + 3;
+                    }
+                    state.game.lock_camera = true;
+                    state.player.death_timeout = config.player.death_by_spikes_timeout;
+                }
+
+                if (state.game.hasOwnProperty("debug_draw_layer")) {
+                    state.game.debug_draw_layer.beginFill(0xFF0000);
+                    state.game.debug_draw_layer.drawRect(this.x + (config.tile_size - config.spikes.width) / 2, this.y - (config.spikes.length - config.tile_size) / 2, config.spikes.width, config.spikes.length);
+                    state.game.debug_draw_layer.endFill();
+                }
+            }
+        }
     }
 }
