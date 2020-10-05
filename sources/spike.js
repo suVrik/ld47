@@ -90,7 +90,7 @@ export default class Spike extends PIXI.Container {
             }
         }
 
-        if (!state.player.is_dead) {
+        if (!state.player.is_dead && !state.player.is_god) {
             const __width = this.is_side ? config.spikes.width : config.tile_size;
 
             if (this.rotation !== 0) {

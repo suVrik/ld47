@@ -51,9 +51,11 @@ export default class DisappearingPlatform extends MovieClip {
         }
 
         if (this.timeout_1 < 1e-8 && this.timeout_2 < 1e-8) {
-            if (Utils.aabb(this.shape.x, this.shape.y, this.shape.width, this.shape.height, state.player.shape.x, state.player.shape.y, state.player.shape.width, state.player.shape.height + 1e-5)) {
-                if (state.player.shape.y + state.player.shape.height - 1e-5 <= this.shape.y) {
-                    this.timeout_1 = config.disappearing_platform.timeout_1;
+            if (!state.player.is_god) {
+                if (Utils.aabb(this.shape.x, this.shape.y, this.shape.width, this.shape.height, state.player.shape.x, state.player.shape.y, state.player.shape.width, state.player.shape.height + 1e-5)) {
+                    if (state.player.shape.y + state.player.shape.height - 1e-5 <= this.shape.y) {
+                        this.timeout_1 = config.disappearing_platform.timeout_1;
+                    }
                 }
             }
         }

@@ -44,7 +44,11 @@ export default class BreakingTile extends PIXI.Sprite {
                                state.player.shape.width + config.player.attack_range * 2,
                                state.player.shape.height + config.player.attack_range,
                                this.shape.x, this.shape.y, this.shape.width, this.shape.height)) {
-                    this.hits++;
+                    if (!state.player.is_god) {
+                        this.hits++;
+                    } else {
+                        this.hits = 3;
+                    }
 
                     // Avoid the rest of this hit.
                     this.timeout = state.player.attack_timeout;

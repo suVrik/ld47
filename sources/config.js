@@ -123,6 +123,7 @@ export default {
         death_by_falling_gravity: 400, // px/sec^2
         death_by_falling_velocity_falling: 0.95,
         hitbox_offset: 2, // px
+        god_speed: 250, // px/sec
     },
     spikes: {
         appear_distance: 100,

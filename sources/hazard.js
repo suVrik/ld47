@@ -52,7 +52,7 @@ export default class Hazard extends PIXI.AnimatedSprite {
 
         this.update_shape();
 
-        if (!state.player.is_dead) {
+        if (!state.player.is_dead && !state.player.is_god) {
             if (Utils.circle_rectangle(this.x, this.y, config.hazard.radius,
                                        state.player.shape.x + config.player.hitbox_offset, state.player.shape.y + config.player.hitbox_offset,
                                        state.player.shape.width - config.player.hitbox_offset * 2, state.player.shape.height - config.player.hitbox_offset * 2)) {

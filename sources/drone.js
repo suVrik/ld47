@@ -152,7 +152,7 @@ export default class Drone extends PIXI.Container {
             this.laser.visible = this.effect.visible = false;
 
             if (!this.activated) {
-                if (distance_to_player <= Utils.sqr(config.drone.activation_radius) && !state.game.physics.raycast_any(laser_x, laser_y, player_x, player_y, collision_mask) && !state.player.is_dead) {
+                if (distance_to_player <= Utils.sqr(config.drone.activation_radius) && !state.game.physics.raycast_any(laser_x, laser_y, player_x, player_y, collision_mask) && !state.player.is_dead && !state.player.is_god) {
                     this.activation_delay += elapsed_time;
                     if (this.activation_delay >= config.drone.activation_delay) {
                         this.activated = true;
@@ -239,7 +239,7 @@ export default class Drone extends PIXI.Container {
                         this.effect.visible = true;
                         this.effect.alpha = this.laser.alpha;
 
-                        if (!state.player.is_dead) {
+                        if (!state.player.is_dead && !state.player.is_god) {
                             if (Utils.segment_aabb(laser_x, laser_y, result[0], result[1],
                                                    state.player.shape.x + config.player.hitbox_offset, state.player.shape.y + config.player.hitbox_offset,
                                                    state.player.shape.width - config.player.hitbox_offset * 2, state.player.shape.height - config.player.hitbox_offset * 2)) {

@@ -55,11 +55,13 @@ export default class MovingPlatform extends PIXI.AnimatedSprite {
             const speed = Math.min(this.speed * elapsed_time, distance);
             const dx = (next.cx - this.x) / distance * speed;
             const dy = (next.cy - this.y) / distance * speed;
-            if (Utils.aabb(this.shape.x, this.shape.y, this.shape.width, this.shape.height, state.player.shape.x, state.player.shape.y, state.player.shape.width, state.player.shape.height + 1)) {
-                if (state.player.shape.y + state.player.shape.height - 1 <= this.shape.y) {
-                    state.player.x += dx;
-                    state.player.y += dy;
-                    state.player.update_shape();
+            if (!state.player.is_god) {
+                if (Utils.aabb(this.shape.x, this.shape.y, this.shape.width, this.shape.height, state.player.shape.x, state.player.shape.y, state.player.shape.width, state.player.shape.height + 1)) {
+                    if (state.player.shape.y + state.player.shape.height - 1 <= this.shape.y) {
+                        state.player.x += dx;
+                        state.player.y += dy;
+                        state.player.update_shape();
+                    }
                 }
             }
             this.x += dx;

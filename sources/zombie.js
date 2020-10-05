@@ -116,7 +116,7 @@ export default class Zombie extends MovieClip {
 
         // Start attacking when player is approaching.
         if (this.attack_cooldown < 1e-8) {
-            if (!this.attacking && !state.player.is_dead) {
+            if (!this.attacking && !state.player.is_dead && !state.player.is_god) {
                 if (Utils.aabb(this.x - config.zombie.attack_prepare, this.y - config.zombie.attack_height, config.zombie.attack_prepare * 2, config.zombie.attack_height,
                                state.player.shape.x + config.player.hitbox_offset, state.player.shape.y + config.player.hitbox_offset,
                                state.player.shape.width - config.player.hitbox_offset * 2, state.player.shape.height - config.player.hitbox_offset * 2)) {
@@ -140,7 +140,7 @@ export default class Zombie extends MovieClip {
             if (!this.playing) {
                 this.attacking = false;
             } else {
-                if (this.currentFrame === 3) {
+                if (this.currentFrame === 3 && !state.player.is_dead && !state.player.is_god) {
                     if (Utils.aabb(this.x + Math.min(config.zombie.attack_range * this.scale.x, 0), this.y - config.zombie.attack_height, config.zombie.attack_range, config.zombie.attack_height,
                                    state.player.shape.x + config.player.hitbox_offset, state.player.shape.y + config.player.hitbox_offset,
                                    state.player.shape.width - config.player.hitbox_offset * 2, state.player.shape.height - config.player.hitbox_offset * 2)) {
@@ -165,10 +165,14 @@ export default class Zombie extends MovieClip {
 
                 this.gotoAndPlay("idle");
             } else {
+                let collision_mask = config.collision_types.environment;
+                if (!state.player.is_god) {
+                    collision_mask |= config.collision_types.player;
+                }
+
                 if (this.x < this.destination_x) {
                     const result = state.game.physics.move_x(
-                        this.shape.x, this.shape.y, this.shape.width, this.shape.height,
-                        config.collision_types.environment | config.collision_types.player,
+                        this.shape.x, this.shape.y, this.shape.width, this.shape.height, collision_mask,
                         Math.min(config.zombie.speed * elapsed_time, this.destination_x - this.x)
                     );
 
@@ -180,8 +184,7 @@ export default class Zombie extends MovieClip {
                     this.scale.x = 1;
                 } else if (this.x > this.destination_x) {
                     const result = state.game.physics.move_x(
-                        this.shape.x, this.shape.y, this.shape.width, this.shape.height,
-                        config.collision_types.environment | config.collision_types.player,
+                        this.shape.x, this.shape.y, this.shape.width, this.shape.height, collision_mask,
                         Math.min(-config.zombie.speed * elapsed_time, this.x - this.destination_x)
                     );
 

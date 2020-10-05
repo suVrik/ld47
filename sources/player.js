@@ -41,6 +41,7 @@ export default class Player extends MovieClip {
         this.death_by_spikes = false;
         this.death_by_falling = false;
         this.death_timeout = 0.0;
+        this.is_god = false;
 
         state.player = this;
 
@@ -50,6 +51,11 @@ export default class Player extends MovieClip {
     }
 
     update_normal(elapsed_time) {
+        // TODO: COMMENT THIS BEFORE RELEASE
+        if (state.input.is_pressed("Backquote", 192)) {
+            this.is_god = !this.is_god;
+        }
+
         this.process_fighting(elapsed_time);
         this.process_movement(elapsed_time);
         this.process_gravity_and_jump(elapsed_time);
@@ -115,6 +121,31 @@ export default class Player extends MovieClip {
         const is_left_down = state.input.is_down("ArrowLeft", 37) || state.input.is_down("KeyA", 65);
         const is_right_down = state.input.is_down("ArrowRight", 39) || state.input.is_down("KeyD", 68);
 
+        // Gods move super fast.
+        if (this.is_god) {
+            let velocity = 0;
+
+            if (is_left_down) {
+                velocity -= config.player.god_speed;
+                this.scale.x = -1;
+            }
+
+            if (is_right_down) {
+                velocity += config.player.god_speed;
+                this.scale.x = 1;
+            }
+
+            const result = state.game.physics.move_x(
+                this.shape.x, this.shape.y, this.shape.width, this.shape.height, config.collision_types.environment, velocity * elapsed_time
+            );
+
+            this.x += result.offset;
+
+            this.update_shape();
+
+            return;
+        }
+
         if (this.attack_timeout < 1e-8) {
             const attack_slowdown_weight = this.attack_slowdown_timeout / config.player.attack_slowdown_timeout;
             const speed_factor = 1 - attack_slowdown_weight * (1 - config.player.attack_slowdown_factor);
@@ -146,9 +177,13 @@ export default class Player extends MovieClip {
             }
         }
 
+        let collision_mask = config.collision_types.environment;
+        if (!this.is_god) {
+            collision_mask |= config.collision_types.enemies;
+        }
+
         const result = state.game.physics.move_x(
-            this.shape.x, this.shape.y, this.shape.width, this.shape.height,
-            config.collision_types.environment | config.collision_types.enemies, this.velocity_x * elapsed_time
+            this.shape.x, this.shape.y, this.shape.width, this.shape.height, collision_mask, this.velocity_x * elapsed_time
         );
 
         this.x += result.offset;
@@ -163,6 +198,31 @@ export default class Player extends MovieClip {
     process_gravity_and_jump(elapsed_time) {
         // Dead never fall.
         if (this.is_dead) {
+            return;
+        }
+
+        // Gods never fall.
+        if (this.is_god) {
+            let velocity = 0;
+
+            const is_up_down = state.input.is_down("ArrowUp", 38) || state.input.is_down("KeyW", 87);
+            if (is_up_down) {
+                velocity -= config.player.god_speed;
+            }
+
+            const is_down_down = state.input.is_down("ArrowDown", 40) || state.input.is_down("KeyS", 83);
+            if (is_down_down) {
+                velocity += config.player.god_speed;
+            }
+
+            const result = state.game.physics.move_y(
+                this.shape.x, this.shape.y, this.shape.width, this.shape.height, config.collision_types.environment, velocity * elapsed_time
+            );
+
+            this.y += result.offset;
+
+            this.update_shape();
+
             return;
         }
 
@@ -185,12 +245,15 @@ export default class Player extends MovieClip {
             collision_mask |= config.collision_types.platform;
         }
 
-        const result = state.game.physics.move_y(this.shape.x, this.shape.y, this.shape.width, this.shape.height, collision_mask, this.velocity_y * elapsed_time, shape => {
-            if ((shape.mask & config.collision_types.platform) !== 0) {
-                return shape.y > this.y - 1e-8;
+        const result = state.game.physics.move_y(
+            this.shape.x, this.shape.y, this.shape.width, this.shape.height, collision_mask, this.velocity_y * elapsed_time,
+            shape => {
+                if ((shape.mask & config.collision_types.platform) !== 0) {
+                    return shape.y > this.y - 1e-8;
+                }
+                return true;
             }
-            return true;
-        });
+        );
 
         this.y += result.offset;
 
@@ -212,6 +275,12 @@ export default class Player extends MovieClip {
     process_animation() {
         // Dead don't animate.
         if (this.is_dead) {
+            return;
+        }
+
+        // God is kinda like flying.
+        if (this.is_god) {
+            this.gotoAndPlay("jump_down");
             return;
         }
 
