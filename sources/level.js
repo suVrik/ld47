@@ -2,6 +2,7 @@
 
 import BreakingTile from "./breaking_tile";
 import Checkpoint from "./checkpoint";
+import Coin from "./coin";
 import config from "./config";
 import DisappearingPlatform from "./disappearing_platform";
 import Drone from "./drone";
@@ -165,6 +166,12 @@ export default class Level {
                             this.y
                         ));
                         break;
+                    case "Coin":
+                        state.game.add_entity(new Coin(
+                            this.x + entity_prototype.x,
+                            this.y + entity_prototype.y
+                        ));
+                        break;
                     case "MovingPlatform":
                         state.game.add_entity(new MovingPlatform(
                             this.x + entity_prototype.x,
@@ -182,7 +189,7 @@ export default class Level {
                         state.game.add_entity(new Checkpoint(
                             this.x + entity_prototype.x,
                             this.y + entity_prototype.y,
-                            entity_prototype.fields["Radius"],
+                            entity_prototype.fields["Radius"]
                         ));
                         break;
                     case "TriggerZone":

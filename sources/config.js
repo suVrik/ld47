@@ -174,6 +174,9 @@ export default {
         shooting_debuff: 1, // sec
         health: 4,
     },
+    coin: {
+        radius: 8, // px
+    },
     disappearing_platform: {
         timeout_1: 0.4,
         timeout_2: 2,
